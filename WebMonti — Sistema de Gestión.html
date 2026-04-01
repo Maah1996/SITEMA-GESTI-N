@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<!-- saved from url=(0074)file:///C:/Users/gladi/Downloads/WebMonti___Sistema_de_Gesti%C3%B3n_8.html -->
+<html lang="es" data-theme="light"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebMonti — Sistema de Gestión</title>
+<meta name="theme-color" content="#0d9488">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WebMonti">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="file:///C:/Users/gladi/Downloads/icon.svg" type="image/svg+xml">
+<script src="./WebMonti — Sistema de Gestión_files/xlsx.full.min.js.descarga"></script>
+<link href="./WebMonti — Sistema de Gestión_files/css2" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  overflow: auto;
+}
+
+.sistema {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+  overflow: auto;
+}
+
+/* =====================================================
+SIDEBAR
+===================================================== */
+.sidebar {
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+}
+
+.logo-area {
+  padding: 22px 16px 16px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.logo-icono { font-size: 22px; margin-bottom: 6px; display: block; }
+.logo-nombre { font-size: 15px; font-weight: 700; color: #f1f5f9; letter-spacing: -0.3px; }
+.logo-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+.nav {
+  padding: 14px 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #475569;
+  padding: 4px 10px 10px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 3px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.nav-item:hover { background: rgba(255,255,255,0.06); }
+.nav-item.activo { background: #1e40af; }
+
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-txt { font-size: 13px; color: #94a3b8; flex: 1; }
+.nav-item.activo .nav-txt { color: #fff; font-weight: 600; }
+.nav-item:hover .nav-txt { color: #e2e8f0; }
+
+.nav-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.b-activo { background: rgba(255,255,255,0.15); color: #fff; }
+.b-pronto { background: rgba(255,255,255,0.05); color: #475569; }
+
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 0.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.user-row { display: flex; align-items: center; gap: 10px; }
+.user-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #1e3a5f;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #93c5fd;
+  flex-shrink: 0;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 12px; color: #e2e8f0; font-weight: 500; }
+.user-rol  { font-size: 10px; color: #64748b; }
+
+/* =====================================================
+MAIN
+===================================================== */
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: auto;
+  background: #eef0f5;
+}
+
+.topbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e5ee;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.topbar-titulo { font-size: 15px; font-weight: 700; color: #1e293b; white-space:nowrap; }
+.topbar-right  { display: flex; align-items: center; gap: 6px; flex-shrink:0; background:#f8fafc; border-radius:10px; padding:6px 14px; border:0.5px solid #e2e8f0; }
+.topbar-hora   { font-size: 18px; font-weight: 700; color: #1e293b; font-variant-numeric: tabular-nums; white-space:nowrap; letter-spacing:-0.5px; }
+.topbar-sep    { font-size:14px; color:#cbd5e1; font-weight:300; }
+.topbar-fecha  { font-size: 12px; color: #64748b; white-space:nowrap; font-weight:500; }
+
+/* =====================================================
+PANELES
+===================================================== */
+.panel {
+  flex: 1;
+  overflow: hidden;
+  display: none;
+}
+
+.panel.visible { display: flex; flex-direction: column; }
+
+/* PANEL HOME */
+#panel-home.visible { display: block; overflow-y: auto; }
+
+/* PANEL COMPRAS */
+#panel-compras.visible { display: block; overflow-y: auto; background: var(--bg, #eef0f5); }
+
+.home-content { padding: 28px; }
+.saludo     { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 4px; letter-spacing: -0.5px; }
+.saludo-sub { font-size: 13px; color: #64748b; margin-bottom: 28px; }
+
+.sec-titulo {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: #94a3b8; margin-bottom: 14px;
+}
+
+.mods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.mod-card {
+  background: #ffffff;
+  border: 1px solid #e2e5ee;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mod-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.mc-blue::before   { background: #2563eb; }
+.mc-green::before  { background: #16a34a; }
+.mc-orange::before { background: #f97316; }
+
+.mod-card:not(.disabled):hover {
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+}
+
+.mod-card.disabled { opacity: 0.55; cursor: not-allowed; }
+
+.mod-icono  { font-size: 28px; display: block; margin-bottom: 12px; }
+.mod-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.mod-desc   { font-size: 12px; color: #64748b; line-height: 1.5; margin-bottom: 14px; }
+
+.mod-estado {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+}
+.est-ok    { background: #dcfce7; color: #16a34a; }
+.est-pronto{ background: #f5f6fa; color: #94a3b8; border: 1px solid #e2e5ee; }
+
+.mod-flecha {
+  position: absolute; bottom: 18px; right: 18px;
+  font-size: 18px; color: #2563eb;
+  opacity: 0; transition: opacity 0.15s, transform 0.15s;
+}
+.mod-card:not(.disabled):hover .mod-flecha { opacity: 1; transform: translateX(3px); }
+
+/* ACCESOS RÁPIDOS */
+.accesos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.acceso-card {
+  background: #ffffff;
+  border: 1px solid #e2e5ee;
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  border: none;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #e2e5ee;
+}
+
+.acceso-card:hover {
+  border-color: #2563eb;
+  background: #dbeafe;
+}
+
+.acceso-icon { font-size: 18px; }
+.acceso-txt  { font-size: 12px; font-weight: 600; color: #1e293b; }
+
+/* IFRAME */
+#panel-compras iframe,
+#panel-inventario iframe,
+#panel-temperatura iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* PRÓXIMAMENTE */
+.sub-item { display:flex; align-items:center; gap:8px; padding:7px 10px 7px 16px; cursor:pointer; transition:background 0.1s; }
+.sub-item:hover { background:rgba(255,255,255,0.06); }
+.sub-dot { width:6px; height:6px; border-radius:50%; background:#0d9488; flex-shrink:0; }
+.sub-txt { font-size:12px; color:#94a3b8; }
+
+/* MODAL CLAVE ADMIN */
+.modal-admin { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-admin.activo { display:flex; }
+.modal-admin-box { background:var(--color-background-primary); border-radius:var(--border-radius-lg); padding:24px; width:320px; }
+.modal-admin-titulo { font-size:16px; font-weight:700; color:var(--color-text-primary); margin-bottom:4px; }
+.modal-admin-sub { font-size:12px; color:var(--color-text-secondary); margin-bottom:16px; }
+.modal-admin-input { width:100%; padding:10px 14px; border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); font-size:16px; letter-spacing:4px; text-align:center; margin-bottom:8px; font-family:var(--font-mono); }
+.modal-admin-error { font-size:12px; color:var(--color-text-danger); margin-bottom:10px; display:none; }
+.modal-admin-btns { display:flex; gap:8px; justify-content:flex-end; }
+
+/* PANEL SECCION */
+#panel-seccion { flex:1; display:none; overflow:hidden; }
+#panel-seccion.visible { display:flex; flex-direction:column; }
+#panel-comprador { flex:1; display:none; overflow:hidden; }
+#panel-comprador.visible { display:flex; flex-direction:column; }
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #94a3b8;
+}
+.pronto-icono { font-size: 48px; }
+.pronto-titulo { font-size: 18px; font-weight: 700; color: #64748b; }
+.pronto-sub { font-size: 13px; color: #94a3b8; }
+.pronto-badge {
+  font-size: 12px; font-weight: 600;
+  background: #f5f6fa; color: #94a3b8;
+  border: 1px solid #e2e5ee;
+  padding: 5px 16px; border-radius: 20px;
+  margin-top: 6px;
+}
+
+/* ===== MODULO COMPRAS ===== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:#eef0f5; --surface:#ffffff; --surface2:#f5f6fa; --border:#e2e5ee;
+  --blue:#2563eb; --blue-light:#dbeafe; --blue-dark:#1d4ed8;
+  --red:#ef4444; --red-light:#fee2e2;
+  --green:#16a34a; --orange:#f97316; --orange-light:#ffedd5;
+  --text:#1e293b; --text2:#64748b;
+  --shadow:0 2px 12px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --shadow-lg:0 8px 30px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.06);
+  --radius:12px; --radius-sm:8px; --th-bg:#2563eb; --tr-hover:#dbeafe;
+}
+[data-theme="dark"] {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#273548; --border:#334155;
+  --blue:#3b82f6; --blue-light:#1e3a5f; --blue-dark:#2563eb;
+  --red:#f87171; --red-light:#3b1212;
+  --green:#4ade80; --orange:#fb923c; --orange-light:#2d1a08;
+  --text:#f1f5f9; --text2:#94a3b8;
+  --shadow:0 2px 12px rgba(0,0,0,0.4),0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 30px rgba(0,0,0,0.5);
+  --th-bg:#1d4ed8; --tr-hover:#1e3a5f;
+}
+
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); padding:16px; font-size:14px; min-height:100vh; transition:background 0.3s,color 0.3s; }
+
+/* TOPBAR */
+.topbar { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px; position:relative; }
+.topbar h2 { font-size:22px; font-weight:700; letter-spacing:-0.5px; color:var(--text); margin:0; }
+.btn-darkmode { position:absolute; right:0; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer; color:var(--text); font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.btn-darkmode:hover { background:var(--border); }
+h3 { font-size:15px; font-weight:600; margin-bottom:12px; color:var(--text); }
+
+/* HEADER */
+.header { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; margin-bottom:12px; }
+.header-grid { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:12px; }
+@media(max-width:900px){ .header-grid{grid-template-columns:1fr 1fr;} }
+@media(max-width:600px){ .header-grid{grid-template-columns:1fr;} }
+
+/* LAYOUT INFERIOR — columna izq alineada con Fecha y Clima del header (1fr de 3.4fr) */
+.layout-inferior { display:grid; grid-template-columns:minmax(200px,1fr) minmax(0,2.4fr); gap:12px; align-items:start; }
+@media(max-width:900px){ .layout-inferior{grid-template-columns:1fr;} }
+.col-izq { display:flex; flex-direction:column; gap:0; min-width:0; overflow:hidden; }
+.col-der { display:flex; flex-direction:column; }
+.box-header { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; font-size:13px; }
+.titulo-header { font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--text2); margin-bottom:8px; }
+#fechaHora { font-size:15px; font-weight:600; color:var(--text); line-height:1.5; }
+.clima-box { line-height:1.7; margin-top:6px; color:var(--text); }
+
+/* SELECTOR PERÍODO DROPDOWN */
+.periodo-btn { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 12px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text); transition:border-color 0.15s; }
+.periodo-btn:hover { border-color:var(--blue); }
+.periodo-btn.abierto { border-color:var(--blue); border-radius:var(--radius-sm) var(--radius-sm) 0 0; }
+.periodo-dropdown { display:none; position:absolute; left:0; right:0; z-index:100; background:var(--surface); border:1px solid var(--blue); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); grid-template-columns:1fr 1fr; box-shadow:var(--shadow-lg); }
+.periodo-dropdown.visible { display:grid; }
+.pd-tipos { border-right:1px solid var(--border); padding:4px 0; }
+.pd-tipo { padding:10px 14px; font-size:13px; cursor:pointer; color:var(--text); transition:background 0.1s; white-space:nowrap; }
+.pd-tipo:hover { background:var(--surface2); }
+.pd-tipo.activo { background:var(--blue-light); color:var(--blue); font-weight:600; }
+.pd-valores { padding:4px 0; overflow-y:auto; max-height:200px; }
+.pd-val { padding:9px 14px; font-size:12px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:space-between; transition:background 0.1s; font-family:'DM Mono',monospace; }
+.pd-val:hover { background:var(--surface2); }
+.pd-val.activo { background:var(--blue-light); color:var(--blue); font-weight:600; }
+.btn-reset-periodo { background:none; border:none; cursor:pointer; font-size:11px; color:var(--text2); font-family:'DM Sans',sans-serif; display:flex; align-items:center; gap:4px; padding:2px 0; }
+.btn-reset-periodo:hover { color:var(--red); }
+
+.resumen-horizontal { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+
+/* KPI cards mejoradas */
+.card-resumen {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px 10px 10px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.card-resumen:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.card-resumen::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:3px;
+  background:var(--blue);
+  border-radius:2px 2px 0 0;
+}
+.card-resumen:nth-child(2)::before { background:var(--green); }
+.card-resumen:nth-child(3)::before { background:var(--orange); }
+.card-resumen b { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text2); margin-bottom:6px; }
+.card-resumen span { font-size:18px; font-weight:700; color:var(--blue); display:block; }
+.card-resumen:nth-child(2) span { color:var(--green); }
+.card-resumen:nth-child(3) span { color:var(--orange); font-size:13px; }
+.card-icono { font-size:18px; margin-bottom:4px; display:block; }
+
+/* EFEMÉRIDES */
+#textoEfemeride { font-size:12px; line-height:1.5; color:var(--text); margin-bottom:6px; }
+#linkEfemeride { font-size:12px; color:var(--blue); text-decoration:none; font-weight:500; }
+#linkEfemeride:hover { text-decoration:underline; }
+
+/* SECCIÓN */
+.seccion-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+@media(max-width:600px){ .seccion-grid{grid-template-columns:1fr 1fr;} }
+.seccion-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 10px; }
+.sec-nombre { font-weight:700; font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px; }
+.sec-monto { font-weight:700; color:var(--blue); font-size:14px; }
+
+/* LAYOUT */
+.box { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+
+/* FORMS */
+input, select { padding:8px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); font-size:13px; font-family:'DM Sans',sans-serif; width:100%; background:var(--surface2); color:var(--text); transition:border-color 0.2s,background 0.3s; }
+input:focus, select:focus { outline:none; border-color:var(--blue); background:var(--surface); }
+.info-producto { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; margin-bottom:14px; }
+@media(max-width:600px){ .info-producto{grid-template-columns:1fr;} }
+
+/* FILAS (sin precio) */
+.fila-producto { display:grid; grid-template-columns:minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px; gap:4px; margin-bottom:8px; align-items:center; min-width:0; overflow:hidden; }
+.col-headers   { display:grid; grid-template-columns:minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px; gap:4px; margin-bottom:4px; padding:0 2px; min-width:0; }
+.col-headers.sin-prov { grid-template-columns:minmax(80px,1.8fr) minmax(40px,55px) minmax(70px,90px) 32px; }
+@media(max-width:700px){ .fila-producto,.col-headers{grid-template-columns:1fr 1fr; gap:6px;} .col-headers{display:none;} }
+
+/* BOTONES */
+.btn { padding:9px 16px; border:none; border-radius:var(--radius-sm); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; }
+.btn-primary { background:var(--blue); color:white; }
+.btn-primary:hover { background:var(--blue-dark); transform:translateY(-1px); }
+.btn-success { background:var(--green); color:white; }
+.btn-success:hover { filter:brightness(0.9); transform:translateY(-1px); }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text2); }
+.btn-outline:hover { background:var(--surface2); }
+.btn-danger { background:var(--red-light); color:var(--red); padding:6px 10px; font-size:13px; border:none; border-radius:var(--radius-sm); cursor:pointer; font-family:'DM Sans',sans-serif; font-weight:600; }
+.btn-danger:hover { background:var(--red); color:white; }
+.btn-edit { background:var(--orange-light); color:var(--orange); padding:5px 8px; font-size:12px; font-weight:600; border:none; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+.btn-edit:hover { background:var(--orange); color:white; }
+.btn-del-row { background:var(--red-light); color:var(--red); border:none; border-radius:6px; padding:6px 8px; cursor:pointer; font-size:14px; transition:all 0.15s; width:100%; }
+.btn-del-row:hover { background:var(--red); color:white; }
+.acciones-form { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+
+/* TABLA */
+.tabla-header { display:flex; gap:8px; margin-bottom:10px; align-items:center; flex-wrap:wrap; }
+.tabla-header input { flex:1; min-width:140px; }
+.tabla-wrap { overflow-x:auto; border-radius:var(--radius-sm); border:1px solid var(--border); }
+table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:12px; min-width:780px; }
+th { background:var(--th-bg); color:white; padding:10px 12px; text-align:left; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; white-space:nowrap; }
+th.center { text-align:center; }
+td { padding:8px 12px; border-bottom:1px solid var(--border); text-align:left; color:var(--text); vertical-align:middle; font-size:12px; }
+td.center { text-align:center; }
+td.monto { text-align:left; font-weight:400; font-family:'DM Mono',monospace; }
+
+/* Filas alternadas */
+tbody tr:nth-child(even) td { background:var(--surface2); }
+tbody tr:nth-child(odd) td { background:var(--surface); }
+tbody tr:hover td { background:var(--tr-hover) !important; }
+
+/* Fila sin precio — Opción C: fila normal, solo celda precio resaltada */
+tr.sin-precio td { background:inherit; border-left:none; }
+.precio-pendiente {
+  display:inline-block;
+  font-size:11px;
+  color:#92400e;
+  background:#fefce8;
+  border:1px dashed #ca8a04;
+  border-radius:5px;
+  padding:2px 8px;
+  font-family:'DM Sans',sans-serif;
+  font-weight:500;
+  cursor:pointer;
+}
+[data-theme="dark"] .precio-pendiente {
+  background:#1c1a08;
+  color:#fbbf24;
+  border-color:#a16207;
+}
+
+/* Pie de tabla totales */
+tfoot tr td { background:var(--blue) !important; color:white !important; font-weight:700; font-size:12px; font-family:'DM Sans',sans-serif; padding:9px 12px; border:none; }
+tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
+
+.td-acciones { display:flex; gap:4px; justify-content:center; }
+
+/* Precio editable inline */
+.precio-editable { background:transparent; border:1px dashed var(--border); border-radius:5px; text-align:left; font-family:'DM Mono',monospace; font-size:12px; color:var(--text); width:100px; padding:3px 6px; transition:all 0.2s; }
+.precio-editable:hover { border-color:var(--blue); background:var(--surface2); }
+.precio-editable:focus { outline:none; border-color:var(--blue); border-style:solid; background:var(--surface); }
+
+/* Celda editable inline con sesión activa */
+.celda-edit { background:var(--blue-light); border:1px solid var(--blue); border-radius:5px; padding:3px 6px; font-family:'DM Sans',sans-serif; color:var(--text); transition:all 0.2s; }
+.celda-edit:focus { outline:none; background:var(--surface); }
+.precio-display { font-family:'DM Mono',monospace; font-size:12px; color:var(--text); cursor:pointer; padding:3px 6px; border-radius:5px; border:1px dashed transparent; transition:all 0.2s; font-weight:400; }
+.precio-display:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+.modal-clave {
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+  padding:0;
+  width:90%;
+  max-width:400px;
+  overflow:hidden;
+}
+.modal-clave-header {
+  background:var(--blue);
+  color:white;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.modal-clave-header .mc-icono { font-size:20px; }
+.modal-clave-header .mc-titulo { font-size:15px; font-weight:700; }
+.modal-clave-header .mc-subtitulo { font-size:11px; opacity:0.85; margin-top:2px; }
+.modal-clave-body { padding:20px; }
+.mc-instruccion {
+  background:var(--blue-light);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--text);
+  margin-bottom:14px;
+  line-height:1.5;
+}
+[data-theme="dark"] .mc-instruccion { background:var(--surface2); }
+.mc-instruccion b { color:var(--blue); }
+.mc-estado {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  margin-bottom:12px;
+  padding:6px 10px;
+  border-radius:6px;
+}
+.mc-estado.activa { background:var(--green-light); color:var(--green); }
+.mc-estado.sin-clave { background:var(--orange-light); color:var(--orange); }
+.mc-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px; display:block; }
+.mc-input { letter-spacing:6px; font-size:20px; text-align:center; margin-bottom:4px; }
+.mc-hint { font-size:11px; color:var(--text2); text-align:center; margin-bottom:14px; }
+.mc-error { font-size:12px; color:var(--red); text-align:center; margin-bottom:8px; display:none; }
+.mc-footer { display:flex; gap:8px; justify-content:flex-end; padding:12px 20px; border-top:1px solid var(--border); background:var(--surface2); }
+.mc-link { font-size:12px; color:var(--blue); cursor:pointer; text-decoration:underline; text-align:center; margin-top:8px; display:block; }
+.mc-link:hover { color:var(--blue-dark); }
+
+.btn-nav-edit { background:var(--surface2); border:1px solid var(--border); border-radius:6px; width:28px; height:28px; font-size:18px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:center; transition:all 0.15s; font-family:'DM Sans',sans-serif; line-height:1; }
+.btn-nav-edit:hover { background:var(--blue); color:white; border-color:var(--blue); }
+.btn-nav-edit:disabled { opacity:0.3; cursor:not-allowed; }
+.btn-nav-edit:disabled:hover { background:var(--surface2); color:var(--text); border-color:var(--border); }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.activo { display:flex; }
+.modal { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-lg); padding:24px; width:90%; max-width:500px; }
+.modal h3 { margin-bottom:16px; }
+.modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+.modal-grid label { font-size:11px; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; }
+.modal-grid .campo { display:flex; flex-direction:column; gap:4px; }
+.modal-acciones { display:flex; gap:8px; justify-content:flex-end; }
+
+/* TOAST */
+.toast { position:fixed; bottom:20px; right:20px; background:var(--green); color:white; padding:12px 20px; border-radius:var(--radius-sm); font-weight:600; font-size:13px; box-shadow:var(--shadow-lg); z-index:2000; transform:translateY(80px); opacity:0; transition:all 0.3s; }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.error { background:var(--red); }
+
+.campo-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px; display:block; }
+.campo-wrap { display:flex; flex-direction:column; }
+
+@media print {
+  /* Eliminar encabezado y pie del navegador (fecha, URL, nombre página) */
+  @page { margin: 10mm; }
+
+  /* Ocultar absolutamente todo */
+  * { visibility: hidden !important; }
+  /* Mostrar solo el printArea y sus hijos */
+  #printArea, #printArea * { visibility: visible !important; }
+  /* Ocultar el h3 "Historial de Compras" que viene dentro del printArea */
+  #printArea h3 { display:none !important; }
+  #printArea {
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100%;
+    background: white !important;
+    padding: 24px !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .no-print { display:none !important; visibility:hidden !important; }
+  .print-titulo { display:block !important; text-align:center; font-size:18px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; font-family:'DM Sans',sans-serif; color:#000; }
+  #print-subtitulo { display:block !important; text-align:center; font-size:13px; font-family:'DM Sans',sans-serif; color:#444; margin-bottom:16px; letter-spacing:0.3px; }
+  .tabla-wrap { overflow:visible !important; border:none !important; }
+  table { min-width:unset !important; width:100% !important; }
+  th { background:#2563eb !important; color:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tfoot tr td { background:#2563eb !important; color:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tbody tr:nth-child(even) td { background:#f5f6fa !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tbody tr:nth-child(odd) td { background:#ffffff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  td, th { color:#000 !important; font-size:11px !important; }
+  .precio-pendiente { border:1px dashed #ca8a04 !important; background:#fefce8 !important; color:#92400e !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .precio-display { color:#000 !important; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="sistema">
+
+  <!-- =====================================================
+  SIDEBAR
+  ===================================================== -->
+  <div class="sidebar">
+    <div class="logo-area">
+      <span class="logo-icono">🏢</span>
+      <div class="logo-nombre">Mi Empresa</div>
+      <div class="logo-sub">Sistema de Gestión</div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Módulos</div>
+
+      <button class="nav-item" id="btn-home" onclick="mostrar(&#39;home&#39;)">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-txt">Inicio</span>
+      </button>
+
+      <!-- COMPRAS — botón simple, secciones dentro del panel -->
+      <button class="nav-item activo" id="btn-compras" onclick="mostrarSelectorCompras()">
+        <span class="nav-icon">🛒</span>
+        <span class="nav-txt">Compras</span>
+      </button>
+
+      <button class="nav-item" id="btn-horarios" onclick="mostrar(&#39;horarios&#39;)">
+        <span class="nav-icon">🕐</span>
+        <span class="nav-txt">Horarios</span>
+        <span class="nav-badge b-pronto">Pronto</span>
+      </button>
+
+      <button class="nav-item" id="btn-inventario" onclick="mostrar(&#39;inventario&#39;)">
+        <span class="nav-icon">📦</span>
+        <span class="nav-txt">Inventario</span>
+        <span class="nav-badge b-pronto">Pronto</span>
+      </button>
+
+      <button class="nav-item" id="btn-temperatura" onclick="mostrar(&#39;temperatura&#39;)">
+        <span class="nav-icon">🌡️</span>
+        <span class="nav-txt">Temperatura</span>
+        <span class="nav-badge b-pronto">Pronto</span>
+      </button>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-av">ME</div>
+        <div class="user-info">
+          <div class="user-name">Mi Empresa</div>
+          <div class="user-rol">Sistema de Gestión</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+  MAIN
+  ===================================================== -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-titulo" id="topTitulo">Módulo — Compras</div>
+      <div class="topbar-right">
+        <div class="topbar-hora" id="topHora">12:12:48 hrs</div>
+        <div class="topbar-sep">·</div>
+        <div class="topbar-fecha" id="topFecha">miércoles, 1 de abril de 2026</div>
+      </div>
+    </div>
+
+    <!-- PANEL INICIO -->
+    <div class="panel" id="panel-home">
+      <div class="home-content">
+        <div class="saludo" id="saludo">¡Buenas tardes! ☀️</div>
+        <div class="saludo-sub">Selecciona un módulo del menú izquierdo para comenzar</div>
+
+        <!-- CLIMA + EFEMÉRIDES CHILE lado a lado -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+
+          <!-- CLIMA PRO -->
+          <div id="clima-home" style="background:#0f172a;border-radius:14px;padding:20px 22px;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:14px;">📍 Punta Arenas — Chile</div>
+            <div style="display:grid;grid-template-columns:88px 1fr;gap:16px;align-items:center;margin-bottom:14px;">
+              <div id="idx-icono-wrap">
+                <svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="44" cy="44" r="18" fill="#f59e0b"></circle>
+                  <line x1="44" y1="6" x2="44" y2="16" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="44" y1="72" x2="44" y2="82" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="6" y1="44" x2="16" y2="44" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="72" y1="44" x2="82" y2="44" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="19" y1="19" x2="26" y2="26" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="62" y1="62" x2="69" y2="69" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="69" y1="19" x2="62" y2="26" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                  <line x1="19" y1="69" x2="26" y2="62" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"></line>
+                </svg>
+              </div>
+              <div>
+                <div id="idx-temp" style="font-size:52px;font-weight:700;color:#f1f5f9;line-height:1;margin-bottom:4px;">--°C</div>
+                <div id="idx-desc" style="font-size:14px;color:#94a3b8;">Cargando...</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;">
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:3px;">Viento</div><div id="idx-viento" style="font-size:14px;font-weight:600;color:#e2e8f0;">--</div></div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:3px;">Lluvia</div><div id="idx-lluvia" style="font-size:14px;font-weight:600;color:#e2e8f0;">--</div></div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:3px;">Nieve</div><div id="idx-nieve" style="font-size:14px;font-weight:600;color:#e2e8f0;">--</div></div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:3px;">Escarcha</div><div id="idx-escarcha" style="font-size:14px;font-weight:600;color:#e2e8f0;">--</div></div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:3px;">UV</div><div id="idx-uv" style="font-size:14px;font-weight:600;color:#e2e8f0;">--</div></div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:3px;">Estado</div><div id="idx-estado" style="font-size:14px;font-weight:600;color:#4ade80;">--</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:6px;">☀️ Sol</div>
+                <div style="display:flex;gap:10px;">
+                  <div><div style="font-size:10px;color:#475569;">↑ Salida</div><div id="idx-sunrise" style="font-size:14px;font-weight:600;color:#fcd34d;">--:--</div></div>
+                  <div><div style="font-size:10px;color:#475569;">↓ Puesta</div><div id="idx-sunset" style="font-size:14px;font-weight:600;color:#fb923c;">--:--</div></div>
+                </div>
+              </div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:6px;">🌙 Luna</div>
+                <div style="display:flex;gap:10px;">
+                  <div><div style="font-size:10px;color:#475569;">↑ Salida</div><div id="idx-moonrise" style="font-size:14px;font-weight:600;color:#93c5fd;">--:--</div></div>
+                  <div><div style="font-size:10px;color:#475569;">↓ Puesta</div><div id="idx-moonset" style="font-size:14px;font-weight:600;color:#c4b5fd;">--:--</div></div>
+                </div>
+              </div>
+              <div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">
+                <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#475569;margin-bottom:6px;">🌛 Fase Lunar</div>
+                <div id="idx-fase-lunar" style="font-size:13px;font-weight:600;color:#e2e8f0;">--</div>
+              </div>
+            </div>
+            <div id="idx-alerta" style="display:none;margin-top:8px;font-size:12px;padding:4px 10px;border-radius:20px;background:#f97316;color:white;"></div>
+          </div>
+
+          <!-- EFEMÉRIDES CHILE PRO -->
+          <div style="background:#0f172a;border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:14px;">🇨🇱 Historia de Chile</div>
+            <div id="efem-chile-anio" style="font-size:13px;font-weight:600;color:#60a5fa;margin-bottom:8px;">2014 · 01 de abril</div>
+            <div id="efem-chile-titulo" style="font-size:18px;font-weight:700;color:#f1f5f9;line-height:1.3;margin-bottom:10px;">Efeméride del día</div>
+            <div id="efem-chile-texto" style="font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:16px;flex:1;">Iquique es una ciudad-puerto y comuna ubicada en el norte grande de Chile, capital de la provincia homónima y de la Región de Tarapacá.</div>
+            <a id="efem-chile-link" href="https://es.wikipedia.org/wiki/Iquique" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: rgb(241, 245, 249); background: rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 14px; text-decoration: none; border: 0.5px solid rgba(255, 255, 255, 0.12); width: fit-content;">Ver en Wikipedia →</a>
+          </div>
+
+        </div>
+
+        <div class="sec-titulo">Módulos del sistema</div>
+        <div class="mods-grid">
+
+          <div class="mod-card mc-blue" onclick="mostrar(&#39;compras&#39;)">
+            <span class="mod-icono">🛒</span>
+            <div class="mod-nombre">Compras</div>
+            <div class="mod-desc">Registro de compras, historial por sección, resumen de períodos y control de gastos.</div>
+            <span class="mod-estado est-ok">✓ Disponible</span>
+            <span class="mod-flecha">→</span>
+          </div>
+
+          <div class="mod-card disabled" style="border-top-color:#7c3aed;">
+            <span class="mod-icono">🕐</span>
+            <div class="mod-nombre">Horarios</div>
+            <div class="mod-desc">Gestión de turnos, horarios del personal y control de asistencia.</div>
+            <span class="mod-estado est-pronto">⏳ En desarrollo</span>
+          </div>
+
+          <div class="mod-card mc-green disabled">
+            <span class="mod-icono">📦</span>
+            <div class="mod-nombre">Inventario</div>
+            <div class="mod-desc">Control de stock, entradas y salidas de productos por bodega y sección.</div>
+            <span class="mod-estado est-pronto">⏳ En desarrollo</span>
+          </div>
+
+          <div class="mod-card mc-orange disabled">
+            <span class="mod-icono">🌡️</span>
+            <div class="mod-nombre">Temperatura</div>
+            <div class="mod-desc">Registro y control de temperaturas de cámaras frigoríficas y equipos de frío.</div>
+            <span class="mod-estado est-pronto">⏳ En desarrollo</span>
+          </div>
+
+        </div>
+
+        <div class="sec-titulo">Accesos rápidos — Compras</div>
+        <div class="accesos-grid">
+          <button class="acceso-card" onclick="mostrar(&#39;compras&#39;)">
+            <span class="acceso-icon">📋</span>
+            <span class="acceso-txt">Ver historial</span>
+          </button>
+          <button class="acceso-card" onclick="mostrar(&#39;compras&#39;)">
+            <span class="acceso-icon">➕</span>
+            <span class="acceso-txt">Registrar compra</span>
+          </button>
+          <button class="acceso-card" onclick="mostrar(&#39;compras&#39;)">
+            <span class="acceso-icon">📊</span>
+            <span class="acceso-txt">Resumen de gastos</span>
+          </button>
+          <button class="acceso-card" onclick="mostrar(&#39;compras&#39;)">
+            <span class="acceso-icon">🖨️</span>
+            <span class="acceso-txt">Imprimir PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL COMPRAS UNIFICADO -->
+    <div class="panel visible" id="panel-compras" style="overflow-y:auto;">
+
+      <!-- SELECTOR DE SECCIÓN / ROL -->
+      <div id="compras-selector" style="padding: 28px; display: block;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;margin-bottom:16px;">Selecciona tu sección</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+
+          <div onclick="entrarRol(&#39;ADMINISTRACIÓN&#39;)" style="background: rgb(255, 255, 255); border: 1px solid rgb(226, 229, 238); border-radius: 12px; padding: 18px 14px; cursor: pointer; position: relative; overflow: hidden; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#2563eb&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2563eb;border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:24px;margin-bottom:10px;">🏢</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">Administración</div>
+            <div style="font-size:11px;color:#64748b;">Compras administrativas</div>
+          </div>
+
+          <div onclick="entrarRol(&#39;BODEGA&#39;)" style="background:#fff;border:1px solid #e2e5ee;border-radius:12px;padding:18px 14px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.15s;" onmouseover="this.style.borderColor=&#39;#0d9488&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#0d9488;border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:24px;margin-bottom:10px;">📦</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">Bodega</div>
+            <div style="font-size:11px;color:#64748b;">Insumos y almacén</div>
+          </div>
+
+          <div onclick="entrarRol(&#39;COCINA&#39;)" style="background:#fff;border:1px solid #e2e5ee;border-radius:12px;padding:18px 14px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.15s;" onmouseover="this.style.borderColor=&#39;#8b5cf6&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#8b5cf6;border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:24px;margin-bottom:10px;">👨‍🍳</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">Cocina</div>
+            <div style="font-size:11px;color:#64748b;">Ingredientes y equipos</div>
+          </div>
+
+          <div onclick="entrarRol(&#39;PANADERÍA&#39;)" style="background: rgb(255, 255, 255); border: 1px solid rgb(226, 229, 238); border-radius: 12px; padding: 18px 14px; cursor: pointer; position: relative; overflow: hidden; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#f97316&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#f97316;border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:24px;margin-bottom:10px;">🍞</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">Panadería</div>
+            <div style="font-size:11px;color:#64748b;">Harinas y materiales</div>
+          </div>
+
+          <div onclick="entrarRol(&#39;PASTELERÍA&#39;)" style="background: rgb(255, 255, 255); border: 1px solid rgb(225, 29, 72); border-radius: 12px; padding: 18px 14px; cursor: pointer; position: relative; overflow: hidden; transition: 0.15s; transform: translateY(-2px);" onmouseover="this.style.borderColor=&#39;#e11d48&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#e11d48;border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:24px;margin-bottom:10px;">🎂</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">Pastelería</div>
+            <div style="font-size:11px;color:#64748b;">Repostería e insumos</div>
+          </div>
+
+          <div onclick="entrarRol(&#39;SALA DE VENTAS&#39;)" style="background:#fff;border:1px solid #e2e5ee;border-radius:12px;padding:18px 14px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.15s;" onmouseover="this.style.borderColor=&#39;#16a34a&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#16a34a;border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:24px;margin-bottom:10px;">🛍️</div>
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">Sala de Ventas</div>
+            <div style="font-size:11px;color:#64748b;">Productos de vitrina</div>
+          </div>
+
+        </div>
+
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;margin-bottom:12px;">Acceso por rol</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:760px;">
+
+          <div onclick="pedirClaveComprador()" style="background: rgb(255, 255, 255); border: 1px solid rgb(226, 229, 238); border-radius: 12px; padding: 16px 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#2563eb&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛒</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1e293b;">Comprador</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px;">Ver historial</div>
+              <span style="font-size:10px;font-weight:600;background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block;">Clave diaria</span>
+            </div>
+          </div>
+
+          <div onclick="pedirClaveAdmin()" style="background: rgb(255, 255, 255); border: 1px solid rgb(226, 229, 238); border-radius: 12px; padding: 16px 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#f59e0b&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔑</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1e293b;">Administrador</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px;">Acceso total</div>
+              <span style="font-size:10px;font-weight:600;background:#ede9fe;color:#7c3aed;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block;">Clave maestra</span>
+            </div>
+          </div>
+
+          <div onclick="pedirClaveProgramador()" style="background: rgb(15, 23, 42); border: 1px solid rgb(30, 41, 59); border-radius: 12px; padding: 16px 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#6366f1&#39;;this.style.background=&#39;#1e293b&#39;" onmouseout="this.style.borderColor=&#39;#1e293b&#39;;this.style.background=&#39;#0f172a&#39;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#312e81;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💻</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f1f5f9;">Programador</div>
+              <div style="font-size:11px;color:#475569;margin-top:2px;">Sistema &amp; datos</div>
+              <span style="font-size:10px;font-weight:600;background:#312e81;color:#a5b4fc;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block;">Acceso restringido</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="compras-wrapper" style="min-height: 100%; display: none;">
+
+      <!-- BOTÓN VOLVER AL MENÚ -->
+      <div class="no-print" style="padding:12px 16px 0;display:flex;align-items:center;gap:10px;">
+        <button onclick="mostrarSelectorCompras()" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:#fff;border:1px solid #e2e5ee;border-radius:30px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:13px;font-weight:600;color:#1e293b;cursor:pointer;transition:all 0.18s;box-shadow:0 1px 4px rgba(0,0,0,0.06);" onmouseover="this.style.background=&#39;#dbeafe&#39;;this.style.borderColor=&#39;#2563eb&#39;;this.style.color=&#39;#2563eb&#39;" onmouseout="this.style.background=&#39;#fff&#39;;this.style.borderColor=&#39;#e2e5ee&#39;;this.style.color=&#39;#1e293b&#39;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Volver al menú
+        </button>
+        <span id="lbl-seccion-activa" style="font-size:12px;font-weight:600;color:#64748b;background:#f1f5f9;padding:4px 12px;border-radius:20px;">📁 Administración</span>
+      </div>
+<div class="topbar" style="display: none;">
+  <h2>🛒 MÓDULO COMPRAS</h2>
+  <button class="btn-darkmode no-print" onclick="toggleDark()" id="btnDark" style="display: none;">🌙 Modo Oscuro</button>
+</div>
+
+<!-- ============================================================
+FILA SUPERIOR: 2 columnas centradas → Gasto por Sección | Resumen
+============================================================ -->
+<div class="header" style="display: none;">
+  <div class="header-grid" style="max-width:820px;margin:0 auto;grid-template-columns:1fr 1.4fr;">
+
+    <!-- GASTO POR SECCIÓN -->
+    <div class="box-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="titulo-header" style="margin:0">📊 Gasto por Sección</div>
+        <span style="font-size:10px;color:var(--text2)">Según filtro activo</span>
+      </div>
+      <div class="seccion-grid" id="seccionGrid">
+    <div class="seccion-card">
+      <div class="sec-nombre">Administración</div>
+      <div class="sec-monto">$0</div>
+    </div>
+    <div class="seccion-card">
+      <div class="sec-nombre">Bodega</div>
+      <div class="sec-monto">$0</div>
+    </div>
+    <div class="seccion-card">
+      <div class="sec-nombre">Cocina</div>
+      <div class="sec-monto">$0</div>
+    </div>
+    <div class="seccion-card">
+      <div class="sec-nombre">Panadería</div>
+      <div class="sec-monto">$0</div>
+    </div>
+    <div class="seccion-card">
+      <div class="sec-nombre">Pastelería</div>
+      <div class="sec-monto">$0</div>
+    </div>
+    <div class="seccion-card">
+      <div class="sec-nombre">Sala de ventas</div>
+      <div class="sec-monto">$0</div>
+    </div></div>
+    </div>
+
+    <!-- RESUMEN DE COMPRAS -->
+    <div class="box-header">
+      <div class="titulo-header">Resumen de Compras</div>
+      <div class="periodo-wrap" style="position:relative;margin-bottom:10px;">
+        <div class="periodo-btn" id="periodoBtn" onclick="togglePeriodo()">
+          <span id="labelPeriodo">Año 2026</span>
+          <span id="periodoChevron" style="font-size:11px;color:var(--text2);transition:transform 0.2s;">▼</span>
+        </div>
+        <div class="periodo-dropdown" id="periodoDropdown">
+          <div class="pd-tipos">
+            <div class="pd-tipo activo" id="pd-mes" onclick="selTipo(&#39;mes&#39;)">Seleccionar Mes</div>
+            <div class="pd-tipo" id="pd-semana" onclick="selTipo(&#39;semana&#39;)">Seleccionar Semana</div>
+            <div class="pd-tipo" id="pd-dia" onclick="selTipo(&#39;dia&#39;)">Seleccionar Día</div>
+            <div class="pd-tipo" id="pd-anio" onclick="selTipo(&#39;anio&#39;)">Seleccionar Año</div>
+          </div>
+          <div class="pd-valores" id="pd-valores"></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn-reset-periodo" onclick="resetFiltros()">↺ Limpiar filtro</button>
+      </div>
+      <div class="resumen-horizontal">
+        <div class="card-resumen">
+          <span class="card-icono">📦</span>
+          <b>Total Unidades</b>
+          <span id="totalProductos" title="Clic para ver lista de productos" style="cursor: pointer;">3</span>
+        </div>
+        <div class="card-resumen">
+          <span class="card-icono">💰</span>
+          <b>Total Invertido</b>
+          <span id="totalDinero">$0</span>
+        </div>
+        <div class="card-resumen">
+          <span class="card-icono">🏆</span>
+          <b>Más Comprado</b>
+          <span id="topProducto">ENVASES C 5</span>
+        </div>
+      </div>
+      <input type="hidden" id="anioFiltro" value="2026">
+      <input type="hidden" id="mesFiltro">
+      <input type="hidden" id="semanaFiltro">
+      <input type="hidden" id="diaFiltro">
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+FILA INFERIOR: 2 columnas
+  Izquierda → Registrar Compra
+  Derecha   → Historial de Compras (ocupa todo el alto)
+============================================================ -->
+<div class="layout-inferior">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-izq">
+
+    <!-- REGISTRAR COMPRA -->
+    <div class="box no-print">
+      <h3>📦 Registrar Compra</h3>
+      <div class="info-producto" id="info-producto-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="campo-wrap"><span class="campo-label">Quien Compra</span><input id="nombreCompra" placeholder="Nombre"></div>
+        <div class="campo-wrap" id="wrap-seccion" style="display:none;">
+          <span class="campo-label">Sección</span>
+          <select id="seccion">
+            <option>Administración</option><option>Bodega</option><option>Cocina</option>
+            <option>Panadería</option><option>Pastelería</option><option>Sala de ventas</option>
+          </select>
+        </div>
+        <div class="campo-wrap"><span class="campo-label">Fecha</span><input type="date" id="fechaCompra"></div>
+      </div>
+      <div class="col-headers sin-prov" id="col-headers-form">
+        <span class="campo-label">Producto</span>
+        <span class="campo-label">Cant.</span>
+        <span class="campo-label">Unidad</span>
+        <span class="campo-label" id="th-prov-form" style="display:none;">Proveedor</span>
+        <span class="campo-label"></span>
+      </div>
+      <div id="productos"></div>
+      <div class="acciones-form">
+        <button class="btn btn-outline" onclick="agregarFila()">➕ Agregar fila</button>
+        <button class="btn btn-success" onclick="enviar()">📤 Enviar compra</button>
+      </div>
+    </div>
+
+  </div><!-- fin col-izq -->
+
+  <!-- COLUMNA DERECHA: HISTORIAL -->
+  <div class="col-der">
+    <div class="box" id="printArea" style="height:100%;">
+      <span class="print-titulo" style="display:none">RESUMEN DE COMPRAS</span>
+      <span id="print-subtitulo" style="display:none;text-align:center;font-size:13px;font-family:&#39;DM Sans&#39;,sans-serif;color:#444;margin-bottom:14px;display:none;width:100%;"></span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h3 style="margin:0">📋 Historial de Compras</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div id="sesion-timer" style="display:none;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--green-light);color:var(--green);font-family:&#39;DM Mono&#39;,monospace;"></div>
+          <button id="btn-listo" class="btn btn-danger no-print" style="display:none;font-size:12px;padding:5px 12px;" onclick="bloquearSesionManual()">🔒 Listo</button>
+          <button class="btn btn-outline no-print" style="font-size: 12px; padding: 5px 10px; display: none;" onclick="pedirClave(&#39;config&#39;)">🔑 Clave</button>
+        </div>
+      </div>
+      <div class="tabla-header no-print">
+        <input type="text" id="buscador" placeholder="🔍 Buscar producto, proveedor, sección..." oninput="filtrar()">
+        <select id="filtroProv" onchange="filtrar()" style="width:150px;flex:none"><option value="">Todos los proveedores</option></select>
+        <button class="btn btn-outline" onclick="exportarExcel()">📊 Excel</button>
+        <button class="btn btn-outline" onclick="imprimirHistorial()">🖨️ Imprimir</button>
+        <button id="btn-backup" class="btn btn-outline" style="color: var(--green); border-color: var(--green); display: none;" onclick="exportarBackup()" title="Exportar backup de datos">💾 Backup</button>
+        <label id="btn-importar" class="btn btn-outline" style="color: var(--blue); border-color: var(--blue); cursor: pointer; display: none;" title="Importar backup de datos">
+          📂 Importar
+          <input type="file" accept=".json" onchange="importarBackup(this)" style="display:none">
+        </label>
+        <button class="btn btn-danger" onclick="pedirClave(&#39;limpiar&#39;)">🗑️</button>
+      </div>
+      <div class="tabla-wrap">
+        <table id="tabla">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="center">Cant.</th>
+              <th class="center">Unidad</th>
+              <th style="display: none;">Precio $</th>
+              <th style="display: none;">Proveedor</th>
+              <th>Sección</th>
+              <th>Comprador</th>
+              <th>Fecha</th>
+              <th class="center no-print">Acciones</th>
+            </tr>
+          </thead>
+          <tbody><tr>
+        <td colspan="9" style="background:#1e3a5f;color:#f1f5f9;font-size:11px;font-weight:700;padding:6px 12px;text-align:left;letter-spacing:0.5px;text-transform:uppercase;">
+          📁 ADMINISTRACIÓN <span style="font-size:9px;color:#93c5fd;font-weight:400;margin-left:6px;">A→Z</span>
+        </td>
+      </tr>
+      <tr class="sin-precio">
+        <td>SILLAS</td>
+        <td class="center">6</td>
+        <td class="center">UNIDADES</td>
+        
+        
+        <td><span>ADMINISTRACIÓN</span></td>
+        <td><span>LUIS</span></td>
+        <td>01/04/2026</td>
+        <td class="center no-print">
+          <div class="td-acciones">
+            <button class="btn-edit" onclick="solicitarEdicion(0)">✏️</button>
+            
+          </div>
+        </td>
+      </tr></tbody>
+          <tfoot>
+            <tr id="filaTotales">
+              <td colspan="3">TOTAL: 5 registros</td>
+              <td class="monto" id="totalPie" style="display: none;">$0</td>
+              <td colspan="4"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div><!-- fin col-der -->
+
+</div><!-- fin layout-inferior -->
+
+<!-- MODAL CLAVE -->
+<div class="modal-overlay" id="modalClave">
+  <div class="modal-clave">
+    <div class="modal-clave-header">
+      <span class="mc-icono" id="mc-icono">🔐</span>
+      <div>
+        <div class="mc-titulo" id="clavetitulo">Acceso Restringido</div>
+        <div class="mc-subtitulo" id="clavetexto">Ingresa la clave para continuar</div>
+      </div>
+    </div>
+    <div class="modal-clave-body">
+      <div class="mc-instruccion" id="mc-instruccion">Ingresa tu clave para continuar.</div>
+      <div class="mc-estado" id="mc-estado"><span>Verificando...</span></div>
+
+      <!-- Panel clave del día (solo visible tras verificar clave maestra) -->
+      <div id="mc-clave-dia-panel" style="display:none;text-align:center;margin:10px 0 14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Clave del día para el personal</div>
+        <div id="mc-clave-dia-valor" style="font-size:36px;font-weight:700;letter-spacing:10px;color:var(--blue);font-family:&#39;DM Mono&#39;,monospace;padding:10px;background:var(--blue-light);border-radius:8px;">----</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:6px;">Esta clave expira a medianoche</div>
+      </div>
+
+      <span class="mc-label" id="mc-label-input">Ingresa tu clave</span>
+      <input type="password" id="claveInput" class="mc-input" placeholder="· · · · · ·" maxlength="20" onkeydown="if(event.key===&#39;Enter&#39;) verificarClave()" oninput="document.getElementById(&#39;mc-error&#39;).style.display=&#39;none&#39;">
+      <div class="mc-hint">Presiona Enter o el botón para confirmar</div>
+      <div class="mc-error" id="mc-error">❌ Clave incorrecta</div>
+      <span class="mc-link" id="mc-link-cambiar" style="display:none" onclick="iniciarCambioClave()">→ Cambiar clave existente</span>
+    </div>
+    <div class="mc-footer">
+      <button class="btn btn-outline" onclick="cerrarModalClave()">Cancelar</button>
+      <button class="btn btn-primary" onclick="verificarClave()" id="mc-btn-confirmar">🔓 Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDICIÓN -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <!-- Header con navegación -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="margin:0">✏️ Editar Registro</h3>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span id="editContador" style="font-size:11px;color:var(--text2);font-weight:600;"></span>
+        <button id="btnEditAnterior" class="btn-nav-edit" onclick="navegarEdicion(-1)" title="Registro anterior">‹</button>
+        <button id="btnEditSiguiente" class="btn-nav-edit" onclick="navegarEdicion(1)" title="Registro siguiente">›</button>
+      </div>
+    </div>
+    <input type="hidden" id="editIndex">
+    <div class="modal-grid">
+      <div class="campo"><label>Producto</label><input id="editNombre"></div>
+      <div class="campo"><label>Cantidad</label><input type="number" id="editCant"></div>
+      <div class="campo"><label>Unidad</label>
+        <select id="editUnidad">
+          <option>UNIDAD</option><option>UNIDADES</option><option>LTS</option><option>KLS</option>
+          <option>GRS</option><option>BOLSAS</option><option>ELEMENTOS</option>
+          <option>CAJAS</option><option>SACOS</option>
+        </select>
+      </div>
+      <div class="campo"><label>Precio $</label><input type="number" id="editPrecio"></div>
+      <div class="campo"><label>Proveedor</label><input id="editProveedor"></div>
+      <div class="campo"><label>Sección</label>
+        <select id="editSeccion">
+          <option value="ADMINISTRACIÓN">Administración</option>
+          <option value="BODEGA">Bodega</option>
+          <option value="COCINA">Cocina</option>
+          <option value="PANADERÍA">Panadería</option>
+          <option value="PASTELERÍA">Pastelería</option>
+          <option value="SALA DE VENTAS">Sala de ventas</option>
+        </select>
+      </div>
+      <div class="campo"><label>Comprador</label><input id="editComprador"></div>
+      <div class="campo"><label>Fecha</label><input type="date" id="editFecha"></div>
+    </div>
+    <div class="modal-acciones">
+      <button class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEdicionYNavegar()">💾 Guardar y continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LISTA DE PRODUCTOS -->
+<div class="modal-overlay" id="modalProductosOverlay">
+  <div class="modal" style="max-width:380px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="margin:0">📦 Productos</h3>
+      <span id="modalProductosTitulo" style="font-size:12px;color:var(--text2);font-weight:600;"></span>
+    </div>
+    <div id="modalProductosLista" style="max-height:340px;overflow-y:auto;padding-right:4px;"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button class="btn btn-outline" onclick="document.getElementById(&#39;modalProductosOverlay&#39;).classList.remove(&#39;activo&#39;)">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">💾 Backup guardado — 3 registros</div>
+
+<script>
+/* STORAGE — migra datos de versiones anteriores automáticamente */
+const STORAGE_KEY = "compras_v3";
+
+function cargarHistorial(){
+  // Intentar cargar desde clave actual
+  let datos = localStorage.getItem(STORAGE_KEY);
+  if(datos) return JSON.parse(datos);
+  // Migrar desde claves anteriores si existen
+  let claveVieja = ["compras_historial_v2","compras_historial_v1","compras_v2","compras_v1"]
+    .find(k => localStorage.getItem(k));
+  if(claveVieja){
+    let migrados = JSON.parse(localStorage.getItem(claveVieja) || "[]");
+    if(migrados.length > 0){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrados));
+      showToast(`✅ ${migrados.length} registros migrados automáticamente`);
+      return migrados;
+    }
+  }
+  return [];
+}
+
+let historial = cargarHistorial();
+historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+function guardarStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(historial)); }
+
+/* DETECCIÓN DE ROL — gestionado por el index */
+let ROL         = 'seccion';
+let SECCION_ROL = '';
+
+// Aplica restricciones visuales según rol
+function aplicarRol(){
+  if(ROL === 'seccion'){
+    // Ocultar header completo (gastos, resumen, efemérides)
+    let header = document.querySelector('.header');
+    if(header) header.style.display = 'none';
+    // Ocultar topbar modo oscuro
+    let btnDark = document.getElementById('btnDark');
+    if(btnDark) btnDark.style.display = 'none';
+    // Fijar sección en el formulario
+    let selSec = document.getElementById('seccion');
+    if(selSec){
+      for(let o of selSec.options){
+        if(o.text.toUpperCase() === SECCION_ROL) o.selected = true;
+      }
+      selSec.disabled = true;
+      selSec.style.background = 'var(--surface2)';
+      selSec.style.color = 'var(--text2)';
+    }
+  }
+  if(ROL === 'comprador'){
+    // Ocultar header completo
+    let header = document.querySelector('.header');
+    if(header) header.style.display = 'none';
+  }
+}
+
+/* MODO OSCURO */
+let darkMode = localStorage.getItem("darkMode") === "true";
+function aplicarTema(){
+  document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+  let btnD = document.getElementById("btnDark");
+  if(btnD) btnD.textContent = darkMode ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
+  localStorage.setItem("darkMode", darkMode);
+}
+function toggleDark(){ darkMode = !darkMode; aplicarTema(); }
+aplicarTema();
+
+/* TOAST */
+function showToast(msg, tipo="ok"){
+  let t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast" + (tipo==="error"?" error":"") + " show";
+  setTimeout(()=> t.className="toast", 2800);
+}
+
+/* =====================================================
+MÓDULO SELECTOR DE PERÍODO — Dropdown estilo foto
+===================================================== */
+const MESES_CORTO = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+const MESES_LARGO = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const DIAS_CORTO  = ["dom","lun","mar","mié","jue","vie","sáb"];
+
+let periodoAbierto = false;
+let tipoActivoPD   = "mes";
+let valorActivoPD  = { tipo:"anio", valor: String(new Date().getFullYear()), label: "Año " + new Date().getFullYear() };
+
+// Genera lista de semanas de más reciente a más antigua
+function listarSemanas(){
+  let lista = [];
+  let hoy   = new Date();
+
+  // Lunes de la semana actual
+  let dow       = hoy.getDay();
+  let lunesBase = new Date(hoy);
+  lunesBase.setDate(hoy.getDate() - (dow === 0 ? 6 : dow - 1));
+  lunesBase.setHours(0,0,0,0);
+
+  for(let i = 0; i < 16; i++){
+    let lunes   = new Date(lunesBase);
+    lunes.setDate(lunesBase.getDate() - i * 7);
+    let domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+
+    // Número semana ISO para el value
+    let tmp     = new Date(lunes);
+    tmp.setDate(tmp.getDate() + 3 - (tmp.getDay() + 6) % 7);
+    let w1      = new Date(tmp.getFullYear(), 0, 4);
+    let numSem  = 1 + Math.round(((tmp - w1) / 86400000 - 3 + (w1.getDay() + 6) % 7) / 7);
+    let val     = `${tmp.getFullYear()}-W${String(numSem).padStart(2,"0")}`;
+
+    let dL   = lunes.getDate();
+    let dD   = domingo.getDate();
+    let mesL = MESES_CORTO[lunes.getMonth()];
+    let mesD = MESES_CORTO[domingo.getMonth()];
+    let aa   = String(domingo.getFullYear()).slice(2);
+
+    // Formato: "SEM del 30 MAR al 05 ABR 26" si cruza mes
+    //          "SEM del 23 al 29 MAR 26"      si mismo mes
+    let label = lunes.getMonth() !== domingo.getMonth()
+      ? `SEM del ${dL} ${mesL} al ${String(dD).padStart(2,"0")} ${mesD} ${aa}`
+      : `SEM del ${dL} al ${String(dD).padStart(2,"0")} ${mesD} ${aa}`;
+
+    lista.push({ val, label });
+  }
+  return lista;
+}
+
+// Genera lista de meses — más reciente primero (mes actual arriba)
+function listarMeses(){
+  let lista = [];
+  let hoy   = new Date();
+  for(let i = 0; i < 24; i++){
+    let d   = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    let val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    let mes = MESES_LARGO[d.getMonth()].toUpperCase();
+    let aa  = String(d.getFullYear()).slice(2);
+    lista.push({ val, label: `${mes} ${aa}` });
+  }
+  return lista;
+}
+
+// Genera lista de días — más reciente primero
+function listarDias(){
+  let lista = [], hoy = new Date();
+  for(let i = 0; i < 30; i++){
+    let d   = new Date(hoy);
+    d.setDate(hoy.getDate() - i);
+    let val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    let dia = DIAS_CORTO[d.getDay()];
+    let num = String(d.getDate()).padStart(2,"0");
+    let mes = MESES_CORTO[d.getMonth()];
+    let aa  = String(d.getFullYear()).slice(2);
+    lista.push({ val, label: `${dia} ${num} ${mes} ${aa}` });
+  }
+  return lista;
+}
+
+// Genera lista de años
+function listarAnios(){
+  let lista = [], hoy = new Date().getFullYear();
+  for(let y=hoy; y>=2020; y--) lista.push({ val: String(y), label: String(y) });
+  return lista;
+}
+
+function togglePeriodo(){
+  periodoAbierto = !periodoAbierto;
+  document.getElementById("periodoDropdown").classList.toggle("visible", periodoAbierto);
+  document.getElementById("periodoBtn").classList.toggle("abierto", periodoAbierto);
+  document.getElementById("periodoChevron").style.transform = periodoAbierto ? "rotate(180deg)" : "";
+  if(periodoAbierto) renderPDValores();
+}
+
+function selTipo(tipo){
+  tipoActivoPD = tipo;
+  ["mes","semana","dia","anio"].forEach(t=>{
+    document.getElementById("pd-"+t).classList.toggle("activo", t===tipo);
+  });
+  renderPDValores();
+}
+
+function renderPDValores(){
+  let lista = tipoActivoPD==="mes"    ? listarMeses()
+            : tipoActivoPD==="semana" ? listarSemanas()
+            : tipoActivoPD==="dia"    ? listarDias()
+            : listarAnios();
+
+  document.getElementById("pd-valores").innerHTML = lista.map(v=>`
+    <div class="pd-val ${v.val===valorActivoPD.valor && tipoActivoPD===valorActivoPD.tipo ? 'activo' : ''}"
+         onclick="selValorPD('${v.val}','${v.label}','${tipoActivoPD}')">
+      <span>${v.label}</span>
+      ${v.val===valorActivoPD.valor && tipoActivoPD===valorActivoPD.tipo ? '<span>✓</span>' : ''}
+    </div>`).join("");
+}
+
+function selValorPD(val, label, tipo){
+  valorActivoPD = { tipo, valor: val, label };
+  document.getElementById("labelPeriodo").textContent = label;
+
+  // Actualizar inputs ocultos para getFiltrados()
+  document.getElementById("anioFiltro").value   = tipo==="anio"   ? val : (tipo==="mes" ? val.split("-")[0] : tipo==="semana" ? val.split("-W")[0] : val.split("-")[0]);
+  document.getElementById("mesFiltro").value    = tipo==="mes"    ? val : "";
+  document.getElementById("semanaFiltro").value = tipo==="semana" ? val : "";
+  document.getElementById("diaFiltro").value    = tipo==="dia"    ? val : "";
+
+  periodoAbierto = false;
+  document.getElementById("periodoDropdown").classList.remove("visible");
+  document.getElementById("periodoBtn").classList.remove("abierto");
+  document.getElementById("periodoChevron").style.transform = "";
+  calcularResumen();
+}
+
+function resetFiltros(){
+  let anio = String(new Date().getFullYear());
+  valorActivoPD = { tipo:"anio", valor: anio, label: "Año " + anio };
+  document.getElementById("labelPeriodo").textContent = "Año " + anio;
+  document.getElementById("anioFiltro").value   = anio;
+  document.getElementById("mesFiltro").value    = "";
+  document.getElementById("semanaFiltro").value = "";
+  document.getElementById("diaFiltro").value    = "";
+  periodoAbierto = false;
+  document.getElementById("periodoDropdown").classList.remove("visible");
+  document.getElementById("periodoBtn").classList.remove("abierto");
+  calcularResumen();
+  showToast("↺ Filtro restablecido");
+}
+
+// Cerrar dropdown al hacer clic fuera
+document.addEventListener("click", function(e){
+  let wrap = document.querySelector(".periodo-wrap");
+  if(wrap && !wrap.contains(e.target)){
+    periodoAbierto = false;
+    document.getElementById("periodoDropdown").classList.remove("visible");
+    document.getElementById("periodoBtn").classList.remove("abierto");
+    document.getElementById("periodoChevron").style.transform = "";
+  }
+});
+
+// Inicializar con año actual
+if(document.getElementById("anioFiltro")) document.getElementById("anioFiltro").value = String(new Date().getFullYear());
+
+/* EFEMÉRIDES */
+/* AGREGAR FILA — sin precio ✅ */
+function agregarFila(){
+  let d = document.createElement("div");
+  d.className = "fila-producto";
+  let esSec = (ROL === 'seccion');
+  d.style.gridTemplateColumns = esSec
+    ? 'minmax(80px,1.8fr) minmax(40px,55px) minmax(70px,90px) 32px'
+    : 'minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px';
+  d.innerHTML = `
+    <input placeholder="Nombre producto">
+    <input type="number" placeholder="0" min="0">
+    <select>
+      <option>Unidad</option><option>Unidades</option><option>Lts</option><option>Kls</option>
+      <option>Grs</option><option>Bolsas</option><option>Elementos</option>
+      <option>Cajas</option><option>Sacos</option>
+    </select>
+    ${esSec ? '' : '<input placeholder="Proveedor">'}
+    <button class="btn-del-row" onclick="this.parentElement.remove()" title="Quitar">✕</button>`;
+  document.getElementById("productos").appendChild(d);
+}
+agregarFila();
+
+/* ENVIAR */
+function enviar(){
+  let nombre  = document.getElementById("nombreCompra").value.trim();
+  let seccion = document.getElementById("seccion").value;
+  let fecha   = document.getElementById("fechaCompra").value;
+  if(!fecha){ showToast("⚠️ Ingresa la fecha de compra","error"); return; }
+  let esSec = (ROL === 'seccion');
+  let filas = document.querySelectorAll(".fila-producto"), agregados = 0;
+  filas.forEach(f=>{
+    let inputs = f.querySelectorAll("input"), sel = f.querySelector("select");
+    let prod      = inputs[0].value.trim();
+    let cant      = Number(inputs[1].value);
+    let proveedor = esSec ? "-" : (inputs[2] ? inputs[2].value.trim() : "-");
+    if(prod && cant > 0){
+      historial.push({
+        nombre:    prod.toUpperCase(),
+        cant,
+        unidad:    sel.value.toUpperCase(),
+        precio:    0,
+        proveedor: proveedor ? proveedor.toUpperCase() : "-",
+        seccion:   seccion.toUpperCase(),
+        comprador: nombre ? nombre.toUpperCase() : "-",
+        fecha
+      });
+      agregados++;
+    }
+  });
+
+  if(agregados===0){ showToast("⚠️ Agrega al menos un producto con cantidad","error"); return; }
+
+  historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+  guardarStorage();
+
+  // Re-renderizar directamente con el historial filtrado por sección si aplica
+  if(ROL === 'seccion' && SECCION_ROL){
+    let lista = historial.filter(x => (x.seccion||'').toUpperCase() === SECCION_ROL);
+    render(lista);
+  } else {
+    filtrar();
+  }
+  calcularResumen(); actualizarFiltroProveedores();
+  document.getElementById("productos").innerHTML=""; agregarFila();
+  showToast(`✅ ${agregados} producto(s) ingresado(s)`);
+}
+
+/* =====================================================
+UTILIDADES DE FORMATO
+===================================================== */
+// Capitaliza correctamente: primera letra mayúscula en cada palabra, resto minúscula
+function capitalizar(str){
+  if(!str) return str;
+  return str.toLowerCase().replace(/(?:^|\s|-)\S/g, l => l.toUpperCase());
+}
+
+// Mayúscula correcta para guardar en historial: capitaliza cada palabra
+function mayusculaCorrecta(str){
+  if(!str || str==="-") return str;
+  return str.trim().toLowerCase()
+    .replace(/(?:^|\s)\S/g, l => l.toUpperCase());
+}
+
+// Formato moneda chilena confiable: $65.000 (sin depender de toLocaleString)
+function formatPeso(n){
+  let num = Math.round(Number(n));
+  let str = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return "$" + str;
+}
+
+// Fecha: 2026-04-01 → 01/04/2026
+function formatFecha(f){
+  if(!f) return "-";
+  let p = f.split("-");
+  if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`;
+  return f;
+}
+
+/* =====================================================
+SISTEMA DE CLAVE DIARIA + SESIÓN DE 2 MINUTOS
+  CLAVE MAESTRA : 372026  → solo el jefe
+  CLAVE DEL DÍA : 4 números generados diariamente
+  SESIÓN        : 2 minutos tras ingresar clave del día
+===================================================== */
+const CLAVE_MAESTRA   = "372026";
+const SESION_MS       = 2 * 60 * 1000; // 2 minutos
+let accionClave       = "";
+let pendienteIdx      = null;
+let esperandoMaestra  = false;
+let sesionTimer       = null;
+let sesionExpira      = 0;
+let sesionActiva      = false;
+let contadorInterval  = null;
+
+/* Genera clave del día — 4 dígitos basados en la fecha actual */
+function generarClaveDia(){
+  let hoy  = new Date();
+  let seed = hoy.getFullYear() * 10000 + (hoy.getMonth()+1) * 100 + hoy.getDate();
+  // Algoritmo simple pero consistente: misma fecha = misma clave
+  let a = ((seed * 1103515245 + 12345) & 0x7fffffff) % 10000;
+  return String(a).padStart(4, "0");
+}
+
+/* Estado de sesión */
+function sesionEstaActiva(){
+  return sesionActiva && Date.now() < sesionExpira;
+}
+
+function iniciarSesion(){
+  sesionActiva = true;
+  sesionExpira = Date.now() + SESION_MS;
+  if(sesionTimer) clearTimeout(sesionTimer);
+  sesionTimer = setTimeout(expirarSesion, SESION_MS);
+  document.getElementById("btn-listo").style.display = "inline-flex";
+  actualizarContador();
+  render(); // re-render para mostrar campos editables
+  showToast("🔓 Acceso concedido — 2 minutos para editar");
+}
+
+function expirarSesion(){
+  sesionActiva = false;
+  sesionExpira = 0;
+  if(contadorInterval) clearInterval(contadorInterval);
+  document.getElementById("sesion-timer").style.display = "none";
+  document.getElementById("btn-listo").style.display    = "none";
+  showToast("🔒 Sesión expirada — pide la clave del día de nuevo", "error");
+  render(); // re-render para bloquear campos
+}
+
+function bloquearSesionManual(){
+  if(sesionTimer) clearTimeout(sesionTimer);
+  if(contadorInterval) clearInterval(contadorInterval);
+  sesionActiva = false;
+  sesionExpira = 0;
+  document.getElementById("sesion-timer").style.display = "none";
+  document.getElementById("btn-listo").style.display    = "none";
+  showToast("🔒 Historial bloqueado correctamente");
+  render(); // re-render para bloquear campos
+}
+
+function actualizarContador(){
+  if(contadorInterval) clearInterval(contadorInterval);
+  let timerEl = document.getElementById("sesion-timer");
+  timerEl.style.display = "flex";
+  contadorInterval = setInterval(()=>{
+    let restante = Math.max(0, sesionExpira - Date.now());
+    let seg = Math.ceil(restante / 1000);
+    let min = Math.floor(seg / 60);
+    let s   = seg % 60;
+    timerEl.textContent = `🔓 ${min}:${String(s).padStart(2,"0")}`;
+    // Cambia color cuando quedan menos de 30 segundos
+    if(restante < 30000){
+      timerEl.style.background = "var(--red-light)";
+      timerEl.style.color = "var(--red)";
+    } else {
+      timerEl.style.background = "var(--green-light)";
+      timerEl.style.color = "var(--green)";
+    }
+    if(restante <= 0){
+      clearInterval(contadorInterval);
+      expirarSesion();
+    }
+  }, 1000);
+}
+
+/* Modal */
+function pedirClave(accion){
+  accionClave      = accion;
+  esperandoMaestra = false;
+
+  document.getElementById("mc-error").style.display        = "none";
+  document.getElementById("claveInput").value              = "";
+  document.getElementById("mc-link-cambiar").style.display = "none";
+  document.getElementById("mc-clave-dia-panel").style.display = "none";
+  document.getElementById("claveInput").style.display      = "block";
+  document.getElementById("mc-label-input").style.display  = "block";
+  document.getElementById("mc-btn-confirmar").style.display = "inline-flex";
+  document.querySelector(".mc-hint").style.display          = "block";
+
+  let estadoEl = document.getElementById("mc-estado");
+
+  if(accion === "config"){
+    // Jefe → pide clave maestra
+    document.getElementById("mc-icono").textContent         = "👔";
+    document.getElementById("clavetitulo").textContent      = "Acceso Jefe";
+    document.getElementById("clavetexto").textContent       = "Solo el jefe puede ver la clave del día";
+    document.getElementById("mc-instruccion").innerHTML     = "Ingresa la <b>clave maestra</b> para ver la clave del día que debes entregar al personal.";
+    document.getElementById("mc-btn-confirmar").textContent = "🔑 Ingresar";
+    estadoEl.className = "mc-estado activa";
+    estadoEl.innerHTML = "🔐 Acceso exclusivo del jefe";
+
+  } else {
+    // Personal → si sesión activa, ejecutar directo sin pedir clave
+    if(sesionEstaActiva()){
+      cerrarModalClave();
+      if(accion === "limpiar")       ejecutarLimpiar();
+      else if(accion === "editar")   ejecutarEdicion();
+      else if(accion === "eliminar") ejecutarEliminar();
+      return;
+    }
+    // Sin sesión → pedir clave del día
+    document.getElementById("mc-icono").textContent         = "🔐";
+    document.getElementById("clavetitulo").textContent      = "Clave del Día";
+    document.getElementById("clavetexto").textContent       = "Solicita la clave al jefe";
+    document.getElementById("mc-instruccion").innerHTML     = "Ingresa la <b>clave del día</b> de 4 dígitos que el jefe te proporcionó.<br>Tendrás <b>2 minutos</b> para editar el historial.";
+    document.getElementById("mc-btn-confirmar").textContent = "🔓 Ingresar";
+    estadoEl.className = "mc-estado activa";
+    estadoEl.innerHTML = "🔒 Historial bloqueado — ingresa la clave del día";
+  }
+
+  document.getElementById("modalClave").classList.add("activo");
+  setTimeout(()=> document.getElementById("claveInput").focus(), 100);
+}
+
+function cerrarModalClave(){
+  document.getElementById("modalClave").classList.remove("activo");
+  accionClave      = "";
+  pendienteIdx     = null;
+  esperandoMaestra = false;
+}
+
+function iniciarCambioClave(){ pedirClave("config"); }
+
+function verificarClave(){
+  let ingresada = document.getElementById("claveInput").value.trim();
+  let claveDia  = generarClaveDia();
+
+  if(!ingresada){
+    document.getElementById("mc-error").textContent = "⚠️ Debes ingresar la clave";
+    document.getElementById("mc-error").style.display = "block";
+    return;
+  }
+
+  // ── JEFE: verificar clave maestra ──────────────────────────
+  if(accionClave === "config"){
+    if(!esperandoMaestra){
+      if(ingresada !== CLAVE_MAESTRA){
+        document.getElementById("mc-error").textContent = "❌ Clave maestra incorrecta";
+        document.getElementById("mc-error").style.display = "block";
+        document.getElementById("claveInput").value = "";
+        document.getElementById("claveInput").focus();
+        return;
+      }
+      // Mostrar clave del día → ocultar input
+      esperandoMaestra = true;
+      document.getElementById("mc-clave-dia-valor").textContent = claveDia;
+      document.getElementById("mc-clave-dia-panel").style.display = "block";
+      document.getElementById("claveInput").style.display      = "none";
+      document.getElementById("mc-label-input").style.display  = "none";
+      document.getElementById("mc-btn-confirmar").style.display = "none";
+      document.querySelector(".mc-hint").style.display          = "none";
+      document.getElementById("mc-error").style.display        = "none";
+      document.getElementById("mc-instruccion").innerHTML =
+        "✅ <b>Clave maestra correcta.</b><br>Entrega los 4 dígitos al personal que necesite editar el historial hoy.<br><br>La clave cambia automáticamente cada día a medianoche.";
+      document.getElementById("mc-estado").className = "mc-estado activa";
+      document.getElementById("mc-estado").innerHTML = "👔 Jefe verificado";
+      return;
+    }
+    return;
+  }
+
+  // ── PERSONAL: verificar clave del día ──────────────────────
+  if(ingresada !== claveDia){
+    document.getElementById("mc-error").textContent = "❌ Clave incorrecta — solicita la clave al jefe";
+    document.getElementById("mc-error").style.display = "block";
+    document.getElementById("claveInput").value = "";
+    document.getElementById("claveInput").focus();
+    return;
+  }
+
+  // Clave del día correcta → iniciar sesión 2 min
+  cerrarModalClave();
+  iniciarSesion();
+
+  // Ejecutar acción pendiente
+  if(accionClave === "limpiar")       ejecutarLimpiar();
+  else if(accionClave === "editar")   ejecutarEdicion();
+  else if(accionClave === "eliminar") ejecutarEliminar();
+}
+
+document.getElementById("modalClave").addEventListener("click", function(e){
+  if(e.target === this) cerrarModalClave();
+});
+
+/* =====================================================
+FILTRO PROVEEDORES
+===================================================== */
+function actualizarFiltroProveedores(){
+  let sel=document.getElementById("filtroProv"), actual=sel.value;
+  let provs=[...new Set(historial.map(x=>x.proveedor).filter(p=>p&&p!=="-"))].sort();
+  sel.innerHTML=`<option value="">Todos los proveedores</option>`;
+  provs.forEach(p=>{ let o=document.createElement("option"); o.value=p; o.text=p; if(p===actual) o.selected=true; sel.appendChild(o); });
+}
+
+/* =====================================================
+RENDER TABLA — con roles y ordenamiento por sección A→Z
+===================================================== */
+function render(datos){
+  let lista = datos !== undefined ? datos : historial;
+
+  // Ordenar: primero por sección A→Z, luego por nombre A→Z
+  lista = [...lista].sort((a,b)=>{
+    let secA = (a.seccion||'').toUpperCase();
+    let secB = (b.seccion||'').toUpperCase();
+    if(secA !== secB) return secA.localeCompare(secB, 'es');
+    return (a.nombre||'').toUpperCase().localeCompare((b.nombre||'').toUpperCase(), 'es');
+  });
+
+  let tb = document.querySelector("#tabla tbody");
+  tb.innerHTML = "";
+
+  if(lista.length === 0){
+    tb.innerHTML = `<tr><td colspan="10" style="color:var(--text2);padding:20px;font-family:'DM Sans',sans-serif;text-align:left">Sin registros aún</td></tr>`;
+    actualizarTotalPie(0);
+    return;
+  }
+
+  let totalGeneral = 0;
+  let seccionActual = '';
+
+  lista.forEach((x, i) => {
+    let idx       = historial.indexOf(x);
+    if(idx < 0) idx = i;
+    let sinPrecio = !x.precio || Number(x.precio) === 0;
+    let precio    = Number(x.precio);
+    totalGeneral += precio;
+    let activa    = sesionEstaActiva();
+
+    // Insertar separador de sección cuando cambia
+    let secNorm = (x.seccion||'').toUpperCase();
+    if(secNorm !== seccionActual){
+      seccionActual = secNorm;
+      tb.innerHTML += `<tr>
+        <td colspan="9" style="background:#1e3a5f;color:#f1f5f9;font-size:11px;font-weight:700;padding:6px 12px;text-align:left;letter-spacing:0.5px;text-transform:uppercase;">
+          📁 ${secNorm} <span style="font-size:9px;color:#93c5fd;font-weight:400;margin-left:6px;">A→Z</span>
+        </td>
+      </tr>`;
+    }
+
+    // PRECIO — editable solo con sesión activa
+    let celdaPrecio = "";
+    if(!activa){
+      // Bloqueado: solo muestra el valor
+      celdaPrecio = sinPrecio
+        ? `<span class="precio-pendiente" style="cursor:default;opacity:0.7">$ pendiente</span>`
+        : `<span style="font-family:'DM Mono',monospace;font-size:12px">${formatPeso(precio)}</span>`;
+    } else {
+      // Sesión activa: editable
+      celdaPrecio = sinPrecio
+        ? `<span class="precio-pendiente" onclick="this.style.display='none';this.nextSibling.style.display='inline-block'" title="Clic para ingresar precio">$ pendiente</span>
+           <input class="precio-editable" type="number" value="" style="display:none;width:90px" placeholder="0" min="0"
+             onblur="if(this.value)editarPrecioInline(${idx},this.value);this.previousSibling.style.display='inline-block';this.style.display='none'"
+             onchange="editarPrecioInline(${idx},this.value)">`
+        : `<span class="precio-display" onclick="this.style.display='none';this.nextSibling.style.display='inline-block'">${formatPeso(precio)}</span>
+           <input class="precio-editable" type="number" value="${precio}" style="display:none;width:90px"
+             onblur="if(this.value)editarPrecioInline(${idx},this.value);this.style.display='none';this.previousSibling.style.display='inline-block'"
+             onchange="editarPrecioInline(${idx},this.value)">`;
+    }
+
+    // PROVEEDOR, SECCIÓN, COMPRADOR — editables inline solo con sesión
+    let secciones = ["Administración","Bodega","Cocina","Panadería","Pastelería","Sala de ventas"];
+    let unidades  = ["UNIDAD","LTS","KLS","GRS","BOLSAS","ELEMENTOS","CAJAS","SACOS"];
+
+    let celdaProv = activa
+      ? `<input class="celda-edit" value="${x.proveedor}" onchange="editarCampoInline(${idx},'proveedor',this.value)" style="width:100%;font-size:12px">`
+      : `<span>${x.proveedor}</span>`;
+
+    let celdaSec = activa
+      ? `<select class="celda-edit" onchange="editarCampoInline(${idx},'seccion',this.value)" style="width:100%;font-size:12px">
+           ${secciones.map(s=>`<option ${x.seccion===s.toUpperCase()||x.seccion===s?'selected':''}>${s}</option>`).join('')}
+         </select>`
+      : `<span>${x.seccion}</span>`;
+
+    let celdaComp = activa
+      ? `<input class="celda-edit" value="${x.comprador}" onchange="editarCampoInline(${idx},'comprador',this.value)" style="width:100%;font-size:12px">`
+      : `<span>${x.comprador}</span>`;
+
+    tb.innerHTML += `
+      <tr class="${sinPrecio ? 'sin-precio' : ''}">
+        <td>${x.nombre}</td>
+        <td class="center">${x.cant}</td>
+        <td class="center">${x.unidad}</td>
+        ${ROL !== 'seccion' ? `<td class="monto">${celdaPrecio}</td>` : ''}
+        ${ROL !== 'seccion' ? `<td>${celdaProv}</td>` : ''}
+        <td>${celdaSec}</td>
+        <td>${celdaComp}</td>
+        <td>${formatFecha(x.fecha)}</td>
+        <td class="center no-print">
+          <div class="td-acciones">
+            <button class="btn-edit" onclick="solicitarEdicion(${idx})">✏️</button>
+            ${ROL === 'admin' ? `<button class="btn-danger" style="padding:5px 8px;font-size:12px;border-radius:6px;" onclick="solicitarEliminar(${idx})">🗑️</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+  });
+
+  actualizarTotalPie(totalGeneral);
+}
+
+function actualizarTotalPie(total){
+  document.getElementById("totalPie").textContent = formatPeso(total);
+}
+
+function editarPrecioInline(idx, valor){
+  if(valor === "" || valor === null) return;
+  historial[idx].precio = Number(valor);
+  guardarStorage(); render(); calcularResumen();
+  showToast("💰 Precio guardado");
+}
+
+function editarCampoInline(idx, campo, valor){
+  if(!valor || valor.trim() === "") return;
+  historial[idx][campo] = valor.trim().toUpperCase();
+  guardarStorage(); calcularResumen();
+  showToast("✅ Campo actualizado");
+}
+
+/* =====================================================
+ELIMINAR con sesión
+===================================================== */
+function solicitarEliminar(idx){
+  pendienteIdx = idx;
+  if(sesionEstaActiva()){ ejecutarEliminar(); return; }
+  pedirClave("eliminar");
+}
+
+function ejecutarEliminar(){
+  if(pendienteIdx === null) return;
+  if(!confirm("¿Eliminar este registro?")){ pendienteIdx=null; return; }
+  historial.splice(pendienteIdx, 1);
+  pendienteIdx = null;
+  guardarStorage(); filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  showToast("🗑️ Registro eliminado");
+}
+
+/* =====================================================
+EDITAR con sesión
+===================================================== */
+function solicitarEdicion(idx){
+  pendienteIdx = idx;
+  if(sesionEstaActiva()){ ejecutarEdicion(); return; }
+  pedirClave("editar");
+}
+
+function ejecutarEdicion(){
+  if(pendienteIdx === null) return;
+  cargarEnModal(pendienteIdx);
+  actualizarNavegacion();
+  document.getElementById("modalOverlay").classList.add("activo");
+}
+
+function cargarEnModal(idx){
+  let x = historial[idx];
+  document.getElementById("editIndex").value     = idx;
+  document.getElementById("editNombre").value    = x.nombre;
+  document.getElementById("editCant").value      = x.cant;
+  document.getElementById("editUnidad").value    = x.unidad;
+  document.getElementById("editPrecio").value    = x.precio || "";
+  document.getElementById("editProveedor").value = x.proveedor === "-" ? "" : x.proveedor;
+  document.getElementById("editSeccion").value   = x.seccion;
+  document.getElementById("editComprador").value = x.comprador === "-" ? "" : x.comprador;
+  document.getElementById("editFecha").value     = x.fecha;
+}
+
+function actualizarNavegacion(){
+  let idx   = Number(document.getElementById("editIndex").value);
+  let total = historial.length;
+  document.getElementById("editContador").textContent = `${idx + 1} de ${total}`;
+  document.getElementById("btnEditAnterior").disabled  = idx <= 0;
+  document.getElementById("btnEditSiguiente").disabled = idx >= total - 1;
+}
+
+function navegarEdicion(direccion){
+  // Guarda cambios actuales antes de navegar
+  guardarEdicion(false); // false = no cerrar modal
+  let idx = Number(document.getElementById("editIndex").value);
+  let nuevo = idx + direccion;
+  if(nuevo < 0 || nuevo >= historial.length) return;
+  pendienteIdx = nuevo;
+  cargarEnModal(nuevo);
+  actualizarNavegacion();
+}
+
+function cerrarModal(){
+  document.getElementById("modalOverlay").classList.remove("activo");
+  pendienteIdx = null;
+}
+
+function guardarEdicion(cerrar = true){
+  let idx = Number(document.getElementById("editIndex").value);
+  historial[idx] = {
+    nombre:    document.getElementById("editNombre").value.trim().toUpperCase(),
+    cant:      Number(document.getElementById("editCant").value),
+    unidad:    document.getElementById("editUnidad").value.toUpperCase(),
+    precio:    Number(document.getElementById("editPrecio").value),
+    proveedor: (document.getElementById("editProveedor").value.trim().toUpperCase()) || "-",
+    seccion:   document.getElementById("editSeccion").value.toUpperCase(),
+    comprador: (document.getElementById("editComprador").value.trim().toUpperCase()) || "-",
+    fecha:     document.getElementById("editFecha").value
+  };
+  guardarStorage();
+  historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+  filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  if(cerrar){
+    cerrarModal();
+    showToast("✅ Registro actualizado");
+  } else {
+    showToast("💾 Guardado — continúa editando");
+  }
+}
+
+// Botón "Guardar y continuar" — guarda y avanza al siguiente si existe, si no cierra
+function guardarEdicionYNavegar(){
+  let idx   = Number(document.getElementById("editIndex").value);
+  let total = historial.length;
+  if(idx < total - 1){
+    // Hay más registros → guarda y avanza
+    navegarEdicion(1);
+  } else {
+    // Último registro → guarda y cierra
+    guardarEdicion(true);
+  }
+}
+
+document.getElementById("modalOverlay").addEventListener("click",function(e){ if(e.target===this) cerrarModal(); });
+
+/* =====================================================
+LIMPIAR TODO con clave
+===================================================== */
+function limpiarTodo(){
+  if(sesionEstaActiva()){ ejecutarLimpiar(); return; }
+  pedirClave("limpiar");
+}
+
+function ejecutarLimpiar(){
+  if(!confirm("¿Eliminar TODOS los registros? No se puede deshacer.")) return;
+  historial=[]; guardarStorage(); filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  showToast("🗑️ Historial limpiado");
+}
+
+/* =====================================================
+IMPRIMIR — agrupado por sección con checklist ✅
+===================================================== */
+function imprimirHistorial(){
+  let badge = document.getElementById("labelPeriodo")
+    ? document.getElementById("labelPeriodo").textContent.trim()
+    : "Todos los registros";
+
+  let ahora = new Date();
+  let fechaImpresion = ahora.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}) +
+                       " · " + ahora.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false}) + " hrs";
+
+  let datosFiltrados = getFiltrados();
+  let txt  = document.getElementById("buscador") ? document.getElementById("buscador").value.toLowerCase().trim() : "";
+  let prov = document.getElementById("filtroProv") ? document.getElementById("filtroProv").value.toLowerCase() : "";
+  if(txt || prov){
+    datosFiltrados = datosFiltrados.filter(x=>{
+      let mt = !txt||(x.nombre.toLowerCase().includes(txt)||x.proveedor.toLowerCase().includes(txt)||x.seccion.toLowerCase().includes(txt));
+      let mp = !prov||x.proveedor.toLowerCase()===prov;
+      return mt && mp;
+    });
+  }
+
+  if(ROL === 'seccion' && SECCION_ROL){
+    datosFiltrados = datosFiltrados.filter(x=>(x.seccion||'').toUpperCase()===SECCION_ROL);
+  }
+
+  if(datosFiltrados.length === 0){ showToast("⚠️ No hay datos para imprimir","error"); return; }
+
+  const ORDEN = ["ADMINISTRACIÓN","BODEGA","COCINA","PANADERÍA","PASTELERÍA","SALA DE VENTAS"];
+  let grupos = {};
+  datosFiltrados.forEach(x=>{
+    let sec = (x.seccion||"SIN SECCIÓN").toUpperCase();
+    if(!grupos[sec]) grupos[sec] = [];
+    grupos[sec].push(x);
+  });
+
+  let seccionesOrdenadas = [
+    ...ORDEN.filter(s=>grupos[s]),
+    ...Object.keys(grupos).filter(s=>!ORDEN.includes(s))
+  ];
+
+  let totalGeneral = 0;
+  let htmlSecciones = seccionesOrdenadas.map(sec=>{
+    let items = grupos[sec].slice().sort((a,b)=> a.nombre.toUpperCase().localeCompare(b.nombre.toUpperCase(),'es'));
+    let subtotal = items.reduce((a,b)=>a+Number(b.precio),0);
+    totalGeneral += subtotal;
+    let filas = items.map((x,i)=>{
+      let precio = Number(x.precio)===0
+        ? '<span style="font-size:9px;color:#92400e;border:1px dashed #ca8a04;border-radius:3px;padding:1px 4px;">$ pendiente</span>'
+        : formatPeso(Number(x.precio));
+      let bg = i%2===1 ? 'background:#f9fafb;' : '';
+      return `<tr style="${bg}">
+        <td>${capitalizar(x.nombre)}</td>
+        <td style="text-align:center;">${x.cant}</td>
+        <td style="text-align:center;">${x.unidad}</td>
+        <td>${precio}</td>
+        <td>${capitalizar(x.proveedor==='-'?'-':x.proveedor)}</td>
+        <td>${formatFecha(x.fecha)}</td>
+        <td style="text-align:center;"><span style="width:13px;height:13px;border:1.5px solid #374151;border-radius:2px;display:inline-block;"></span></td>
+      </tr>`;
+    }).join("");
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="background:#1e3a5f;color:white;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:4px 4px 0 0;display:flex;justify-content:space-between;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+          <span>📁 ${capitalizar(sec)} <span style="font-size:8px;color:#93c5fd;font-weight:400;">A→Z</span></span>
+          <span style="color:#93c5fd;">Subtotal: ${subtotal>0?formatPeso(subtotal):'$0'}</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+          <colgroup><col style="width:26%"><col style="width:8%"><col style="width:11%"><col style="width:14%"><col style="width:20%"><col style="width:13%"><col style="width:8%"></colgroup>
+          <thead><tr style="background:#2563eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+            <th style="padding:5px 8px;text-align:left;font-size:9px;color:white;">Producto</th>
+            <th style="padding:5px 8px;text-align:center;font-size:9px;color:white;">Cant.</th>
+            <th style="padding:5px 8px;text-align:center;font-size:9px;color:white;">Unidad</th>
+            <th style="padding:5px 8px;text-align:left;font-size:9px;color:white;">Precio $</th>
+            <th style="padding:5px 8px;text-align:left;font-size:9px;color:white;">Proveedor</th>
+            <th style="padding:5px 8px;text-align:left;font-size:9px;color:white;">Fecha</th>
+            <th style="padding:5px 8px;text-align:center;font-size:9px;color:white;">✓</th>
+          </tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>`;
+  }).join("");
+
+  let contenido = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Resumen de Compras</title>
+<style>
+  @page{margin:12mm 10mm 14mm 10mm;}
+  body{font-family:Arial,sans-serif;font-size:11px;color:#000;margin:0;padding:0;}
+  #aviso{background:#fef9c3;border:1px solid #ca8a04;border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:11px;color:#713f12;}
+  td{padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;}
+  @media print{#aviso{display:none!important;}}
+</style>
+</head>
+<body>
+  <div id="aviso">⚠️ Para eliminar fecha del navegador: diálogo de impresión → <b>Más configuración</b> → desactiva <b>"Encabezados y pies de página"</b>.</div>
+  <div style="text-align:center;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">RESUMEN DE COMPRAS</div>
+  <div style="text-align:center;font-size:10px;color:#555;margin-bottom:16px;">Período: ${badge} &nbsp;·&nbsp; ${fechaImpresion}</div>
+  ${htmlSecciones}
+  <div style="background:#2563eb;color:white;padding:8px 10px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+    <span>TOTAL GENERAL</span><span>${formatPeso(totalGeneral)}</span>
+  </div>
+  <div style="text-align:right;font-size:9px;color:#999;margin-top:8px;">Módulo Compras · Sistema de Gestión</div>
+  <script>window.onload=()=>{ window.print(); window.onafterprint=()=>window.close(); }<\/script>
+</body>
+</html>`;
+
+  let ventana = window.open("","_blank","width=900,height=700");
+  ventana.document.write(contenido);
+  ventana.document.close();
+}
+
+/* SEMANA ISO */
+function getNumSemana(fecha){
+  let d=new Date(fecha+"T12:00:00");
+  d.setDate(d.getDate()+3-(d.getDay()+6)%7);
+  let w1=new Date(d.getFullYear(),0,4);
+  return [d.getFullYear(), 1+Math.round(((d-w1)/86400000-3+(w1.getDay()+6)%7)/7)];
+}
+
+/* RESUMEN + SECCIÓN ✅ */
+function getFiltrados(){
+  let anio=document.getElementById("anioFiltro").value;
+  let mes=document.getElementById("mesFiltro").value;
+  let semana=document.getElementById("semanaFiltro").value;
+  let dia=document.getElementById("diaFiltro").value;
+  return historial.filter(x=>{
+    let f=new Date(x.fecha+"T12:00:00");
+    if(anio && f.getFullYear()!=anio) return false;
+    if(mes && !x.fecha.startsWith(mes)) return false;
+    if(semana){
+      let [as,ns]=semana.split("-W").map(Number);
+      let [ar,nr]=getNumSemana(x.fecha);
+      if(ar!==as||nr!==ns) return false;
+    }
+    if(dia && x.fecha!==dia) return false;
+    return true;
+  });
+}
+
+function calcularResumen(){
+  let filtrados = getFiltrados();
+
+  // Total Productos = número de filas (productos distintos en historial)
+  let totalU = filtrados.length;
+
+  let totalD = filtrados.reduce((a,b)=>a+Number(b.precio), 0);
+  let conteo = {};
+  filtrados.forEach(x=>{ conteo[x.nombre]=(conteo[x.nombre]||0)+Number(x.cant); });
+  let top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
+
+  // Total Productos — clickeable para ver lista
+  let spanU = document.getElementById("totalProductos");
+  spanU.textContent = totalU;
+  spanU.style.cursor = "pointer";
+  spanU.title = "Clic para ver lista de productos";
+  spanU.onclick = ()=> mostrarListaProductos(filtrados);
+
+  document.getElementById("totalDinero").textContent = formatPeso(totalD);
+  document.getElementById("topProducto").textContent = top ? top[0] : "-";
+
+  // Resumen por sección — comparación sin importar mayúsculas/minúsculas
+  const secciones = ["Administración","Bodega","Cocina","Panadería","Pastelería","Sala de ventas"];
+  let gastos = {};
+  secciones.forEach(s => gastos[s.toUpperCase()] = 0);
+  filtrados.forEach(x=>{
+    let secUp = (x.seccion || "").toUpperCase();
+    if(gastos[secUp] !== undefined) gastos[secUp] += Number(x.precio);
+  });
+  document.getElementById("seccionGrid").innerHTML = secciones.map(s=>`
+    <div class="seccion-card">
+      <div class="sec-nombre">${s}</div>
+      <div class="sec-monto">${formatPeso(gastos[s.toUpperCase()])}</div>
+    </div>`).join("");
+
+  filtrar();
+}
+
+/* Modal lista de productos */
+function mostrarListaProductos(filtrados){
+  // Obtener nombres únicos ordenados alfabéticamente
+  let nombres = [...new Set(filtrados.map(x=> x.nombre))].sort();
+  if(nombres.length === 0){ showToast("Sin productos en este período","error"); return; }
+
+  let overlay = document.getElementById("modalProductosOverlay");
+  document.getElementById("modalProductosLista").innerHTML = nombres.map((n,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);">
+      <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:20px;">${i+1}</span>
+      <span style="font-size:13px;color:var(--text);">${capitalizar(n)}</span>
+    </div>`).join("");
+  document.getElementById("modalProductosTitulo").textContent = `${nombres.length} productos`;
+  overlay.classList.add("activo");
+}
+
+/* BUSCADOR + FILTRO PROVEEDOR — combinado con filtro de período ✅ */
+function filtrar(){
+  let txt  = document.getElementById("buscador") ? document.getElementById("buscador").value.toLowerCase().trim() : "";
+  let prov = document.getElementById("filtroProv") ? document.getElementById("filtroProv").value.toLowerCase() : "";
+
+  // Base: si es sección usar todo el historial filtrado por sección
+  // Si es admin/comprador usar getFiltrados()
+  let base;
+  if(ROL === 'seccion' && SECCION_ROL){
+    base = historial.filter(x => (x.seccion||'').toUpperCase() === SECCION_ROL);
+  } else {
+    base = getFiltrados();
+  }
+
+  let resultado = base.filter(x=>{
+    let mt = !txt||(
+      x.nombre.toLowerCase().includes(txt)||
+      x.proveedor.toLowerCase().includes(txt)||
+      x.seccion.toLowerCase().includes(txt)||
+      x.comprador.toLowerCase().includes(txt)
+    );
+    let mp = !prov || x.proveedor.toLowerCase()===prov;
+    return mt && mp;
+  });
+
+  render(resultado);
+}
+
+/* EXPORTAR EXCEL — usa los mismos datos filtrados que la tabla ✅ */
+function exportarExcel(){
+  // Usar los mismos datos que están visibles en la tabla (filtro período + buscador)
+  let datos_export = getFiltrados();
+
+  // Aplicar también filtro de buscador y proveedor si están activos
+  let txt  = document.getElementById("buscador").value.toLowerCase().trim();
+  let prov = document.getElementById("filtroProv").value.toLowerCase();
+  if(txt || prov){
+    datos_export = datos_export.filter(x=>{
+      let mt = !txt||(x.nombre.toLowerCase().includes(txt)||x.proveedor.toLowerCase().includes(txt)||x.seccion.toLowerCase().includes(txt)||x.comprador.toLowerCase().includes(txt));
+      let mp = !prov || x.proveedor.toLowerCase()===prov;
+      return mt && mp;
+    });
+  }
+
+  if(datos_export.length===0){ showToast("⚠️ No hay datos para exportar","error"); return; }
+
+  // Encabezados iguales a la tabla
+  let filas = [["PRODUCTO","CANT.","UNIDAD","PRECIO $","PROVEEDOR","SECCIÓN","COMPRADOR","FECHA"]];
+
+  datos_export.forEach(x=>{
+    filas.push([
+      x.nombre,
+      Number(x.cant),
+      x.unidad,
+      Number(x.precio),
+      x.proveedor,
+      x.seccion,
+      x.comprador,
+      formatFecha(x.fecha)   // formato DD/MM/AAAA igual que la tabla
+    ]);
+  });
+
+  // Fila de total — el monto va en columna D (índice 3 = PRECIO $)
+  let totalGeneral = datos_export.reduce((a,b)=>a+Number(b.precio),0);
+  filas.push(["TOTAL GENERAL","","",totalGeneral,"","","",""]);
+
+  let wb = XLSX.utils.book_new();
+  let ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:24},{wch:8},{wch:10},{wch:14},{wch:18},{wch:16},{wch:16},{wch:13}];
+
+  // Estilo de encabezado (negrita en fila 1)
+  let rango = XLSX.utils.decode_range(ws["!ref"]);
+  for(let C = rango.s.c; C <= rango.e.c; C++){
+    let cell = ws[XLSX.utils.encode_cell({r:0, c:C})];
+    if(cell) cell.s = { font:{ bold:true } };
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, "Compras");
+  let hoy = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `historial_compras_${hoy}.xlsx`);
+  showToast(`📊 Excel exportado — ${datos_export.length} registros`);
+}
+
+/* =====================================================
+BACKUP — exportar e importar datos JSON
+===================================================== */
+function exportarBackup(){
+  if(historial.length === 0){ showToast("⚠️ No hay datos para exportar","error"); return; }
+  let backup = {
+    version: "compras_v3",
+    fecha: new Date().toISOString(),
+    registros: historial
+  };
+  let blob = new Blob([JSON.stringify(backup, null, 2)], { type:"application/json" });
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `backup_compras_${new Date().toISOString().slice(0,10)}.json`;
+  link.click();
+  showToast(`💾 Backup guardado — ${historial.length} registros`);
+}
+
+function importarBackup(input){
+  let file = input.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      let data = JSON.parse(e.target.result);
+      let registros = data.registros || data; // soporta formato nuevo y array directo
+      if(!Array.isArray(registros) || registros.length === 0){
+        showToast("⚠️ Archivo sin datos válidos","error"); return;
+      }
+      if(!confirm(`¿Importar ${registros.length} registros? Los datos actuales se reemplazarán.`)) return;
+      historial = registros;
+      historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+      guardarStorage();
+      filtrar(); calcularResumen(); actualizarFiltroProveedores();
+      showToast(`✅ ${registros.length} registros importados correctamente`);
+    } catch(err){
+      showToast("❌ Error al leer el archivo","error");
+    }
+    input.value = ""; // resetear input
+  };
+  reader.readAsText(file);
+}
+
+let _modalProdOverlay = document.getElementById("modalProductosOverlay");
+if(_modalProdOverlay){
+  _modalProdOverlay.addEventListener("click",function(e){
+    if(e.target===this) this.classList.remove("activo");
+  });
+}
+
+// INIT — solo ejecutar si los elementos existen
+function initCompras(){
+  if(document.getElementById("anioFiltro")){
+    document.getElementById("anioFiltro").value = String(new Date().getFullYear());
+  }
+  filtrar(); calcularResumen(); actualizarFiltroProveedores();
+}
+initCompras();
+</script>
+      </div>
+    </div>
+
+    <!-- PANEL HORARIOS — próximamente -->
+    <div class="panel" id="panel-horarios">
+      <div class="pronto-wrap">
+        <span class="pronto-icono">🕐</span>
+        <div class="pronto-titulo">Módulo Horarios</div>
+        <div class="pronto-sub">Este módulo está en desarrollo</div>
+        <span class="pronto-badge">⏳ Próximamente disponible</span>
+      </div>
+    </div>
+
+    <!-- PANEL INVENTARIO — próximamente -->
+    <div class="panel" id="panel-inventario">
+      <div class="pronto-wrap">
+        <span class="pronto-icono">📦</span>
+        <div class="pronto-titulo">Módulo Inventario</div>
+        <div class="pronto-sub">Este módulo está en desarrollo</div>
+        <span class="pronto-badge">⏳ Próximamente disponible</span>
+      </div>
+    </div>
+
+    <!-- PANEL TEMPERATURA — próximamente -->
+    <div class="panel" id="panel-temperatura">
+      <div class="pronto-wrap">
+        <span class="pronto-icono">🌡️</span>
+        <div class="pronto-titulo">Módulo Temperatura</div>
+        <div class="pronto-sub">Este módulo está en desarrollo</div>
+        <span class="pronto-badge">⏳ Próximamente disponible</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CLAVE COMPRADOR -->
+<div class="modal-admin" id="modalComprador">
+  <div class="modal-admin-box">
+    <div class="modal-admin-titulo">🛒 Acceso Comprador</div>
+    <div class="modal-admin-sub">Ingresa la clave para acceder</div>
+    <input type="password" class="modal-admin-input" id="inputClaveComprador" placeholder="· · · · · ·" maxlength="10" onkeydown="if(event.key===&#39;Enter&#39;) verificarClaveComprador()">
+    <div class="modal-admin-error" id="errorClaveComprador">❌ Clave incorrecta</div>
+    <div class="modal-admin-btns">
+      <button onclick="cerrarModalComprador()" style="padding:8px 16px;border:1px solid #e2e5ee;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--color-text-primary);">Cancelar</button>
+      <button onclick="verificarClaveComprador()" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLAVE ADMINISTRADOR -->
+<div class="modal-admin" id="modalAdmin">
+  <div class="modal-admin-box">
+    <div class="modal-admin-titulo">🔑 Acceso Administrador</div>
+    <div class="modal-admin-sub">Ingresa la clave maestra para acceder al módulo completo</div>
+    <input type="password" class="modal-admin-input" id="inputClaveAdmin" placeholder="· · · · · ·" maxlength="10" onkeydown="if(event.key===&#39;Enter&#39;) verificarClaveAdmin()">
+    <div class="modal-admin-error" id="errorClaveAdmin">❌ Clave incorrecta</div>
+    <div class="modal-admin-btns">
+      <button onclick="cerrarModalAdmin()" style="padding:8px 16px;border:1px solid var(--color-border-secondary);border-radius:8px;background:none;cursor:pointer;font-family:var(--font-sans);font-size:13px;color:var(--color-text-primary);">Cancelar</button>
+      <button onclick="verificarClaveAdmin()" style="padding:8px 16px;background:#0d9488;color:white;border:none;border-radius:8px;cursor:pointer;font-family:var(--font-sans);font-size:13px;font-weight:600;">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLAVE PROGRAMADOR -->
+<div class="modal-admin" id="modalProgramador">
+  <div class="modal-admin-box" style="background:#0f172a;border:1px solid #312e81;">
+    <div class="modal-admin-titulo" style="color:#f1f5f9;">💻 Acceso Programador</div>
+    <div class="modal-admin-sub" style="color:#475569;">Zona restringida — Solo el programador</div>
+    <input type="password" class="modal-admin-input" id="inputClaveProg" placeholder="· · · · · ·" maxlength="10" style="background:#1e293b;border-color:#312e81;color:#f1f5f9;letter-spacing:6px;" onkeydown="if(event.key===&#39;Enter&#39;) verificarClaveProgramador()">
+    <div class="modal-admin-error" id="errorClaveProg" style="display: none;">❌ Acceso denegado</div>
+    <div class="modal-admin-btns">
+      <button onclick="cerrarModalProgramador()" style="padding:8px 16px;border:1px solid #1e293b;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:#94a3b8;">Cancelar</button>
+      <button onclick="verificarClaveProgramador()" style="padding:8px 16px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Variables de navegación
+let comprasCargado   = false;
+let compradorCargado = false;
+let _seccionNavActual = '';
+
+/* =====================================================
+PROGRAMADOR — acceso exclusivo con clave 1996
+===================================================== */
+const CLAVE_PROGRAMADOR = '1996';
+
+function pedirClaveProgramador(){
+  document.getElementById('inputClaveProg').value = '';
+  document.getElementById('errorClaveProg').style.display = 'none';
+  document.getElementById('modalProgramador').classList.add('activo');
+  setTimeout(()=> document.getElementById('inputClaveProg').focus(), 100);
+}
+
+function cerrarModalProgramador(){
+  document.getElementById('modalProgramador').classList.remove('activo');
+}
+
+function verificarClaveProgramador(){
+  let clave = document.getElementById('inputClaveProg').value.trim();
+  if(clave === CLAVE_PROGRAMADOR){
+    cerrarModalProgramador();
+    ROL = 'programador'; SECCION_ROL = '';
+    abrirCompras('Sistema — Programador');
+  } else {
+    document.getElementById('errorClaveProg').style.display = 'block';
+    document.getElementById('inputClaveProg').value = '';
+    document.getElementById('inputClaveProg').focus();
+  }
+}
+
+// Mostrar selector de sección al hacer clic en Compras
+function mostrarSelectorCompras(){
+  ocultarTodos();
+  document.getElementById('btn-compras').classList.add('activo');
+  document.getElementById('panel-compras').classList.add('visible');
+  document.getElementById('compras-selector').style.display = 'block';
+  document.getElementById('compras-wrapper').style.display = 'none';
+  document.getElementById('topTitulo').textContent = 'Módulo — Compras';
+}
+
+// entrarSeccion y entrarComprador ahora usan entrarRol
+function entrarSeccion(seccion){ entrarRol(seccion); }
+function entrarComprador(){ entrarRol('COMPRADOR'); }
+
+// Modal clave admin
+const CLAVE_COMPRADOR = 'comp26';
+
+function pedirClaveComprador(){
+  document.getElementById('inputClaveComprador').value = '';
+  document.getElementById('errorClaveComprador').style.display = 'none';
+  document.getElementById('modalComprador').classList.add('activo');
+  setTimeout(()=> document.getElementById('inputClaveComprador').focus(), 100);
+}
+
+function cerrarModalComprador(){
+  document.getElementById('modalComprador').classList.remove('activo');
+}
+
+function verificarClaveComprador(){
+  let clave = document.getElementById('inputClaveComprador').value.trim();
+  if(clave === CLAVE_COMPRADOR){
+    cerrarModalComprador();
+    ROL = 'comprador'; SECCION_ROL = '';
+    abrirCompras('Compras — Comprador');
+  } else {
+    document.getElementById('errorClaveComprador').style.display = 'block';
+    document.getElementById('inputClaveComprador').value = '';
+    document.getElementById('inputClaveComprador').focus();
+  }
+}
+
+function pedirClaveAdmin(){
+  document.getElementById('inputClaveAdmin').value = '';
+  document.getElementById('errorClaveAdmin').style.display = 'none';
+  document.getElementById('modalAdmin').classList.add('activo');
+  setTimeout(()=> document.getElementById('inputClaveAdmin').focus(), 100);
+}
+
+function cerrarModalAdmin(){
+  document.getElementById('modalAdmin').classList.remove('activo');
+}
+
+function verificarClaveAdmin(){
+  let clave = document.getElementById('inputClaveAdmin').value.trim();
+  if(clave === CLAVE_MAESTRA){
+    cerrarModalAdmin();
+    ROL = 'admin'; SECCION_ROL = '';
+    abrirCompras('Módulo — Compras');
+  } else {
+    document.getElementById('errorClaveAdmin').style.display = 'block';
+    document.getElementById('inputClaveAdmin').value = '';
+    document.getElementById('inputClaveAdmin').focus();
+  }
+}
+
+function ocultarTodos(){
+  ['home','compras','horarios','inventario','temperatura'].forEach(m => {
+    let btn = document.getElementById('btn-' + m);
+    if(btn) btn.classList.remove('activo');
+    let panel = document.getElementById('panel-' + m);
+    if(panel) panel.classList.remove('visible');
+  });
+  document.getElementById('btn-compras').classList.remove('activo');
+}
+
+function mostrar(mod){
+  ocultarTodos();
+  document.getElementById('btn-' + mod).classList.add('activo');
+  document.getElementById('panel-' + mod).classList.add('visible');
+  document.getElementById('topTitulo').textContent = {
+    home:'Panel Principal', horarios:'Módulo — Horarios',
+    inventario:'Módulo — Inventario', temperatura:'Módulo — Temperatura'
+  }[mod] || mod;
+}
+
+function capitalizar(str){
+  if(!str) return '';
+  return str.toLowerCase().replace(/(?:^|\s|-)\S/g, l => l.toUpperCase());
+}
+
+// Hora y fecha en tiempo real
+function tick(){
+  let now  = new Date();
+  let hora = now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  let fecha = now.toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let topH = document.getElementById('topHora');
+  let topF = document.getElementById('topFecha');
+  if(topH) topH.textContent = hora + ' hrs';
+  if(topF) topF.textContent = fecha;
+  let saludo = document.getElementById('saludo');
+  if(saludo){
+    let h = now.getHours();
+    saludo.textContent = h < 12 ? '¡Buenos días! 🌅' : h < 19 ? '¡Buenas tardes! ☀️' : '¡Buenas noches! 🌙';
+  }
+}
+setInterval(tick, 1000);
+tick();
+
+// Clima Punta Arenas
+function getClimaIcono(codigo, esNoche){
+  const sol = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><circle cx="44" cy="44" r="18" fill="#f59e0b"/><line x1="44" y1="6" x2="44" y2="16" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="44" y1="72" x2="44" y2="82" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="6" y1="44" x2="16" y2="44" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="72" y1="44" x2="82" y2="44" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="19" y1="19" x2="26" y2="26" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="62" x2="69" y2="69" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="69" y1="19" x2="62" y2="26" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/><line x1="19" y1="69" x2="26" y2="62" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+  const luna = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><path d="M44 14 A30 30 0 1 0 74 44 A20 20 0 1 1 44 14Z" fill="#93c5fd"/></svg>`;
+  const nubes = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="52" rx="28" ry="14" fill="#94a3b8"/><ellipse cx="36" cy="46" rx="16" ry="12" fill="#94a3b8"/><ellipse cx="52" cy="44" rx="14" ry="11" fill="#b0bec5"/></svg>`;
+  const parcial = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="32" r="14" fill="#f59e0b"/><line x1="30" y1="10" x2="30" y2="18" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/><line x1="10" y1="32" x2="18" y2="32" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="16" x2="22" y2="22" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/><line x1="44" y1="16" x2="38" y2="22" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="58" rx="26" ry="13" fill="#94a3b8"/><ellipse cx="40" cy="52" rx="16" ry="12" fill="#94a3b8"/><ellipse cx="56" cy="50" rx="14" ry="11" fill="#b0bec5"/></svg>`;
+  const lluvia = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="42" rx="28" ry="14" fill="#64748b"/><ellipse cx="36" cy="36" rx="16" ry="12" fill="#64748b"/><ellipse cx="52" cy="34" rx="14" ry="11" fill="#78909c"/><line x1="32" y1="60" x2="28" y2="72" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/><line x1="44" y1="60" x2="40" y2="72" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/><line x1="56" y1="60" x2="52" y2="72" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/></svg>`;
+  const nieve = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="42" rx="28" ry="14" fill="#94a3b8"/><ellipse cx="36" cy="36" rx="16" ry="12" fill="#94a3b8"/><circle cx="32" cy="64" r="4" fill="#e2e8f0"/><circle cx="44" cy="68" r="4" fill="#e2e8f0"/><circle cx="56" cy="64" r="4" fill="#e2e8f0"/><circle cx="38" cy="74" r="3" fill="#e2e8f0"/><circle cx="50" cy="74" r="3" fill="#e2e8f0"/></svg>`;
+  const niebla = `<svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg"><line x1="16" y1="36" x2="72" y2="36" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/><line x1="22" y1="48" x2="66" y2="48" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/><line x1="16" y1="60" x2="72" y2="60" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/></svg>`;
+  if(esNoche && codigo<=1) return luna;
+  if(codigo===0) return sol;
+  if(codigo===1||codigo===2) return parcial;
+  if(codigo===3) return nubes;
+  if(codigo===45||codigo===48) return niebla;
+  if(codigo>=51&&codigo<=67) return lluvia;
+  if(codigo>=71&&codigo<=77) return nieve;
+  if(codigo>=80&&codigo<=82) return lluvia;
+  if(codigo>=85&&codigo<=86) return nieve;
+  return nubes;
+}
+function getClimaDesc(codigo, esNoche){
+  if(esNoche&&codigo<=1) return 'Despejado · Noche';
+  if(codigo===0) return 'Despejado';
+  if(codigo===1) return 'Principalmente despejado';
+  if(codigo===2) return 'Parcialmente nublado';
+  if(codigo===3) return 'Nublado';
+  if(codigo===45||codigo===48) return 'Niebla';
+  if(codigo>=51&&codigo<=55) return 'Llovizna';
+  if(codigo>=61&&codigo<=65) return 'Lluvia';
+  if(codigo>=71&&codigo<=77) return 'Nieve';
+  if(codigo>=80&&codigo<=82) return 'Chubascos';
+  if(codigo>=85&&codigo<=86) return 'Chubascos de nieve';
+  if(codigo>=95) return 'Tormenta';
+  return 'Nublado';
+}
+async function cargarClima(){
+  try{
+    const url = "https://api.open-meteo.com/v1/forecast"
+      + "?latitude=-53.16&longitude=-70.91"
+      + "&current=temperature_2m,apparent_temperature,precipitation,weathercode,windspeed_10m,snowfall,uv_index,is_day"
+      + "&daily=sunrise,sunset,moonrise,moonset"
+      + "&timezone=America/Punta_Arenas&forecast_days=1";
+    let r    = await fetch(url);
+    let data = await r.json();
+    let cw   = data.current;
+    let prec    = cw.precipitation   ?? 0;
+    let uv      = cw.uv_index        ?? 0;
+    let nieve   = cw.snowfall        ?? 0;
+    let sens    = cw.apparent_temperature ?? cw.temperature_2m;
+    let temp    = cw.temperature_2m;
+    let viento  = cw.windspeed_10m;
+    let codigo  = cw.weathercode;
+    let esNoche = cw.is_day === 0;
+    let escarcha = temp < 2 && prec === 0;
+    function s(id,val){ let e=document.getElementById(id); if(e) e.textContent=val; }
+    function sc(id,col){ let e=document.getElementById(id); if(e) e.style.color=col; }
+    s('idx-temp', temp + '°C');
+    s('idx-desc', getClimaDesc(codigo, esNoche) + ' · Sensación ' + Math.round(sens) + '°C');
+    let iw = document.getElementById('idx-icono-wrap'); if(iw) iw.innerHTML = getClimaIcono(codigo, esNoche);
+    s('idx-viento',   viento + ' km/h');
+    s('idx-lluvia',   prec + ' mm');
+    s('idx-nieve',    nieve > 0 ? nieve + ' cm' : 'No');
+    s('idx-escarcha', escarcha ? 'Sí ⚠️' : 'No');
+    s('idx-uv',       String(uv));
+    s('idx-estado',   prec>5?'Lluvia ⚠️':nieve>0?'Nieve ❄️':escarcha?'Escarcha ⚠️':'Normal ✓');
+    sc('idx-estado',  prec>5||escarcha||nieve>0 ? '#fb923c' : '#4ade80');
+    s('idx-sunrise',  data.daily.sunrise[0].slice(11,16));
+    s('idx-sunset',   data.daily.sunset[0].slice(11,16));
+    s('idx-moonrise', data.daily.moonrise[0] ? data.daily.moonrise[0].slice(11,16) : '--:--');
+    s('idx-moonset',  data.daily.moonset[0]  ? data.daily.moonset[0].slice(11,16)  : '--:--');
+
+    // Fase lunar calculada
+    function getFaseLunar(){
+      let now = new Date();
+      let lunaRef = new Date(2000,0,6,18,14,0);
+      let diasDesde = (now - lunaRef) / (1000*60*60*24);
+      let ciclo = 29.53058867;
+      let fase = ((diasDesde % ciclo) + ciclo) % ciclo;
+      if(fase < 1.85)  return '🌑 Luna Nueva';
+      if(fase < 7.38)  return '🌒 Cuarto Creciente';
+      if(fase < 14.77) return '🌕 Luna Llena';
+      if(fase < 22.15) return '🌘 Cuarto Menguante';
+      return '🌑 Luna Nueva';
+    }
+    s('idx-fase-lunar', getFaseLunar());
+    let alertas = [];
+    if(prec>5)   alertas.push('⚠ Lluvia intensa');
+    if(escarcha) alertas.push('⚠ Escarcha');
+    if(nieve>0)  alertas.push('❄ Nevando');
+    if(uv>7)     alertas.push('⚠ UV alto');
+    let alertEl = document.getElementById('idx-alerta');
+    if(alertEl){ alertEl.style.display=alertas.length>0?'block':'none'; if(alertas.length>0) alertEl.textContent=alertas.join(' · '); }
+  } catch(e){
+    let el = document.getElementById('idx-desc');
+    if(el) el.textContent = 'Sin conexión al clima';
+  }
+}
+// =====================================================
+// EFEMÉRIDES HISTORIA DE CHILE
+// =====================================================
+const HISTORIA_CHILE = {
+  "01-01": { titulo:"Año Nuevo en Chile", texto:"El 1 de enero Chile celebra el inicio del nuevo año con tradiciones que mezclan la herencia española y mapuche. Las festividades incluyen fuegos artificiales en todo el país, siendo Valparaíso famoso mundialmente por su espectáculo pirotécnico en los 42 cerros de la ciudad porteña. La tradición de los fuegos de Valparaíso comenzó en el siglo XIX y hoy convoca a más de un millón de personas en sus playas y paseos. Es feriado nacional irrenunciable desde los inicios de la república, celebrado con fondas, asados y reuniones familiares en todo Chile.", url:"https://www.memoriachilena.gob.cl/602/w3-article-100390.html" },
+  "05-01": { titulo:"Día del Trabajo (1931)", texto:"El 1 de mayo Chile conmemora el Día Internacional del Trabajador, reconocido legalmente en 1931. La fecha recuerda la lucha del movimiento obrero chileno por mejores condiciones laborales. Importantes huelgas y movimientos sociales marcaron la historia sindical del país desde principios del siglo XX.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3536.html" },
+  "21-05": { titulo:"Combate Naval de Iquique (1879)", texto:"El 21 de mayo de 1879, durante la Guerra del Pacífico, la corbeta Esmeralda al mando del Capitán Arturo Prat se enfrentó al poderoso monitor blindado peruano Huáscar frente al puerto de Iquique. Con una tripulación de 200 hombres contra un barco cuatro veces más potente, Prat rechazó rendirse y ordenó el abordaje al grito de 'Al abordaje, muchachos, que los valientes no se rinden'. Cayó muerto en cubierta enemiga en el primer intento, siguiéndolo el sargento Juan de Dios Aldea. La Esmeralda fue hundida tras horas de combate desigual, pero el heroísmo de su tripulación encendió el espíritu patriótico del país. Este día es hoy feriado nacional, el Día de las Glorias Navales.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3630.html" },
+  "26-05": { titulo:"Nacimiento de Arturo Prat (1848)", texto:"Arturo Prat Chacón nació el 26 de mayo de 1848 en Ninhue, Ñuble. Abogado y marino, es el héroe naval más venerado de Chile. Su sacrificio en el Combate de Iquique el 21 de mayo de 1879 lo convirtió en símbolo del deber y la lealtad. Prat murió a los 31 años liderando el abordaje al Huáscar durante la Guerra del Pacífico.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3635.html" },
+  "07-06": { titulo:"Toma del Morro de Arica (1880)", texto:"El 7 de junio de 1880, durante la Guerra del Pacífico, el ejército chileno asaltó el Morro de Arica, bastión defensivo peruano considerado inexpugnable. La batalla duró menos de una hora y resultó en una victoria decisiva para Chile. El Coronel Pedro Lagos dirigió el ataque que abrió el camino hacia Lima.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3638.html" },
+  "18-09": { titulo:"Primera Junta de Gobierno (1810)", texto:"El 18 de septiembre de 1810, en el Cabildo Abierto de Santiago, los vecinos principales de la ciudad depusieron al gobernador Francisco Antonio García Carrasco y constituyeron la Primera Junta Nacional de Gobierno. Presidida por el anciano Mateo de Toro Zambrano, la junta declaró gobernar en nombre del rey Fernando VII, prisionero de Napoleón, pero en la práctica inició el camino hacia la independencia. El proceso desató años de lucha interna entre patriotas y realistas, conocido como la Patria Vieja. Este 18 de septiembre es el feriado más importante de Chile, celebrado con fondas, cueca, empanadas y chicha en todo el territorio nacional.", url:"https://www.memoriachilena.gob.cl/602/w3-article-92805.html" },
+  "19-09": { titulo:"Día de las Glorias del Ejército", texto:"El 19 de septiembre Chile celebra el Día de las Glorias del Ejército, en conmemoración de la primera revista militar organizada en 1811 por la Primera Junta de Gobierno. El Ejército de Chile tiene una historia de más de 200 años, participando en la Guerra de Independencia, la Guerra del Pacífico y misiones de paz internacionales.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3537.html" },
+  "12-02": { titulo:"Batalla de Chacabuco (1817)", texto:"El 12 de febrero de 1817, el Ejército Libertador comandado por Bernardo O'Higgins y José de San Martín cruzó la cordillera de los Andes y derrotó al ejército realista en las laderas del cerro Chacabuco, a 65 km de Santiago. La batalla fue sorpresiva y duró menos de tres horas: el ala izquierda a cargo de O'Higgins avanzó sin esperar órdenes, arriesgando el plan pero logrando la victoria. Las bajas patriotas fueron mínimas frente al desastre realista. Al día siguiente San Martín entró triunfante a Santiago, abriendo el camino definitivo hacia la independencia proclamada el 12 de febrero de 1818.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3624.html" },
+  "05-04": { titulo:"Batalla de Maipú (1818)", texto:"El 5 de abril de 1818, en los llanos de Maipú a las afueras de Santiago, el Ejército Libertador al mando de San Martín derrotó definitivamente a las fuerzas realistas del General Osorio, sellando la independencia de Chile. La batalla fue sangrienta y duró más de cuatro horas con grandes bajas en ambos bandos. O'Higgins, quien se recuperaba de una herida recibida en Cancha Rayada días antes, llegó vendado al campo de batalla para abrazar a San Martín pronunciando la célebre frase: 'General, Chile nunca olvidará el nombre del gran San Martín'. Con Maipú, la independencia quedó asegurada y San Martín pudo continuar su campaña libertadora hacia Perú.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3625.html" },
+  "20-08": { titulo:"Nacimiento de Bernardo O'Higgins (1778)", texto:"Bernardo O'Higgins Riquelme nació el 20 de agosto de 1778 en Chillán. Hijo del gobernador Ambrosio O'Higgins, lideró la independencia de Chile junto a San Martín. Fue el primer Director Supremo de Chile entre 1817 y 1823. Exiliado en Perú, murió en Lima en 1842 sin poder regresar a su patria.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3620.html" },
+  "02-04": { titulo:"Nacimiento de Pedro de Valdivia (1497)", texto:"Pedro de Valdivia nació aproximadamente en 1497 en Villanueva de la Serena, España. Conquistador español, fundó Santiago de Chile el 12 de febrero de 1541 y otras ciudades como La Serena, Concepción y Valdivia. Murió en la Batalla de Tucapel en 1553, capturado por el toqui mapuche Lautaro.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3606.html" },
+  "11-11": { titulo:"Armisticio de la Primera Guerra Mundial (1918)", texto:"Aunque no directamente chilena, el 11 de noviembre marca la culminación de la Gran Guerra que afectó profundamente la economía del salitre chileno. Chile exportaba el 70% del salitre mundial hasta que Alemania desarrolló el salitre sintético. La crisis post-guerra devastó las salitreras del norte y generó una gran emigración hacia el sur del país.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3531.html" },
+  "04-09": { titulo:"Elección de Salvador Allende (1970)", texto:"El 4 de septiembre de 1970, Salvador Allende ganó las elecciones presidenciales con el 36,6% de los votos, convirtiéndose en el primer presidente socialista elegido democráticamente en el mundo. Su gobierno, la Unidad Popular, nacionalizó el cobre y otras industrias. Murió el 11 de septiembre de 1973 durante el golpe militar.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3544.html" },
+  "11-09": { titulo:"Golpe de Estado (1973)", texto:"El 11 de septiembre de 1973 las Fuerzas Armadas de Chile derrocaron al gobierno constitucional del Presidente Salvador Allende. El bombardeo a La Moneda marcó el inicio de una dictadura militar de 17 años liderada por Augusto Pinochet. Allende murió en el Palacio de La Moneda. Este día es uno de los más traumáticos de la historia contemporánea chilena.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3547.html" },
+  "05-10": { titulo:"Plebiscito Nacional (1988)", texto:"El 5 de octubre de 1988 se realizó el plebiscito que determinó si Pinochet continuaba en el poder. El 'No' ganó con el 55,99% de los votos, poniendo fin a la dictadura militar. Este hito marcó el inicio de la transición a la democracia en Chile, con elecciones libres celebradas en 1989.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3548.html" },
+  "28-10": { titulo:"Nacimiento de Manuel Rodríguez (1785)", texto:"Manuel Rodríguez Erdoíza nació el 28 de octubre de 1785 en Santiago. Fue el guerrillero más audaz de la independencia chilena, conocido por burlar a los realistas con disfraces y engaños. Sus hazañas populares lo convirtieron en leyenda. Murió en 1818 asesinado en extrañas circunstancias, a los 32 años.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3623.html" },
+  "25-05": { titulo:"Fundación de la Armada de Chile (1818)", texto:"El 25 de mayo de 1818 se creó formalmente la Armada de Chile bajo el gobierno de Bernardo O'Higgins, con Lord Thomas Cochrane como su primer comandante. La escuadra chilena jugó un papel fundamental en la independencia de Chile y Perú. Arturo Prat, su héroe máximo, inmortalizó la institución en el Combate de Iquique.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3631.html" },
+  "02-02": { titulo:"Fundación de Santiago (1541)", texto:"El 12 de febrero de 1541 Pedro de Valdivia fundó Santiago del Nuevo Extremo, hoy capital de Chile. Sin embargo, el 2 de febrero de 1541 se realizó el acto previo de posesión del territorio. La ciudad fue destruida y reconstruida varias veces en sus primeros años por ataques mapuches bajo el mando de Michimalonco.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3605.html" },
+  "30-03": { titulo:"Terremoto de Chillán (1939)", texto:"El 24 de enero de 1939 un devastador terremoto de magnitud 8.3 destruyó Chillán y Concepción, dejando más de 30.000 muertos. Fue uno de los terremotos más mortíferos de la historia chilena. El presidente Pedro Aguirre Cerda declaró zona de catástrofe y se creó la CORFO para reconstruir el país e industrializarlo.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3560.html" },
+  "22-05": { titulo:"Terremoto de Valdivia (1960)", texto:"El 22 de mayo de 1960, el terremoto de Valdivia con magnitud 9.5 es el más poderoso registrado en la historia de la humanidad. Devastó el sur de Chile generando tsunamis que cruzaron el Pacífico hasta Japón y Hawaii. Murieron entre 1.000 y 6.000 personas. Ciudades enteras fueron destruidas y reconstruidas en nuevas ubicaciones.", url:"https://www.memoriachilena.gob.cl/602/w3-article-3561.html" }
+};
+
+async function cargarEfemeridesChile(){
+  let hoy = new Date();
+  let dia = String(hoy.getDate()).padStart(2,'0');
+  let mes = String(hoy.getMonth()+1).padStart(2,'0');
+  let clave = `${dia}-${mes}`;
+
+  let tituloEl = document.getElementById('efem-chile-titulo');
+  let textoEl  = document.getElementById('efem-chile-texto');
+  let linkEl   = document.getElementById('efem-chile-link');
+
+  if(!tituloEl) return;
+
+  if(HISTORIA_CHILE[clave]){
+    let ev = HISTORIA_CHILE[clave];
+    let anioEl = document.getElementById('efem-chile-anio');
+    let anioMatch = ev.titulo.match(/\((\d{4})\)/);
+    if(anioEl) anioEl.textContent = (anioMatch ? anioMatch[1] + ' · ' : '') + dia + ' de ' + new Date().toLocaleDateString('es-CL',{month:'long'});
+    tituloEl.textContent = ev.titulo.replace(/\s*\(\d{4}\)/,'');
+    textoEl.textContent  = ev.texto;
+    linkEl.href = ev.url;
+    linkEl.style.display = 'inline-flex';
+  } else {
+    try {
+      let r = await fetch(`https://es.wikipedia.org/api/rest_v1/feed/onthisday/events/${hoy.getMonth()+1}/${hoy.getDate()}`);
+      let data = await r.json();
+      let evChile = data.events.find(e => e.text.toLowerCase().includes('chile') || e.text.toLowerCase().includes('chileno') || e.text.toLowerCase().includes('chilena'));
+      if(!evChile) evChile = data.events[0];
+      let anioEl = document.getElementById('efem-chile-anio');
+      if(anioEl) anioEl.textContent = evChile.year + ' · ' + dia + ' de ' + new Date().toLocaleDateString('es-CL',{month:'long'});
+      tituloEl.textContent = 'Efeméride del día';
+      let textoBase = evChile.text;
+      // Si el texto es corto, buscar más páginas relacionadas
+      if(textoBase.length < 200 && evChile.pages && evChile.pages[0] && evChile.pages[0].extract){
+        textoBase = evChile.pages[0].extract.substring(0, 500);
+      }
+      textoEl.textContent = textoBase.substring(0, 480) + (textoBase.length > 480 ? '...' : '');
+      if(evChile.pages && evChile.pages[0]){
+        linkEl.href = evChile.pages[0].content_urls.desktop.page;
+        linkEl.textContent = 'Ver en Wikipedia →';
+        linkEl.style.display = 'inline-flex';
+      }
+    } catch(e){
+      tituloEl.textContent = 'Historia de Chile';
+      textoEl.textContent  = 'No disponible en este momento.';
+    }
+  }
+}
+cargarEfemeridesChile();
+
+// Service Worker — se activa solo en GitHub Pages
+if('serviceWorker' in navigator && location.hostname !== 'localhost' && !location.protocol.startsWith('file')){
+  navigator.serviceWorker.register('sw.js')
+    .catch(e => {});
+}
+
+/* =====================================================
+GESTIÓN DE ROLES — inline sin iframes
+===================================================== */
+function entrarRol(seccion){
+  if(seccion === 'COMPRADOR'){
+    ROL = 'comprador'; SECCION_ROL = '';
+    abrirCompras('Compras — Comprador');
+  } else {
+    ROL = 'seccion'; SECCION_ROL = seccion;
+    abrirCompras('Compras — ' + capitalizar(seccion));
+  }
+}
+
+function abrirCompras(titulo){
+  ocultarTodos();
+  document.getElementById('btn-compras').classList.add('activo');
+  document.getElementById('panel-compras').classList.add('visible');
+  document.getElementById('compras-selector').style.display = 'none';
+  document.getElementById('compras-wrapper').style.display = 'block';
+  document.getElementById('topTitulo').textContent = titulo;
+  // Mostrar sección activa en el badge del botón volver
+  let lbl = document.getElementById('lbl-seccion-activa');
+  if(lbl){
+    if(ROL === 'admin') lbl.textContent = '🔑 Administrador';
+    else if(ROL === 'comprador') lbl.textContent = '🛒 Comprador';
+    else if(ROL === 'programador') lbl.textContent = '💻 Programador';
+    else if(ROL === 'seccion' && SECCION_ROL) lbl.textContent = '📁 ' + capitalizar(SECCION_ROL);
+    else lbl.textContent = '';
+  }
+  aplicarRolVista();
+}
+
+function aplicarRolVista(){
+  let header    = document.querySelector('#panel-compras .header');
+  let btnDark   = document.getElementById('btnDark');
+  let topbarMod = document.querySelector('#compras-wrapper .topbar');
+  let secSelect = document.getElementById('seccion');
+  let regForm   = document.querySelector('#compras-wrapper .col-izq');
+  let layout    = document.querySelector('#compras-wrapper .layout-inferior');
+
+  // Botones exclusivos admin/programador
+  let btnLimpiar  = document.querySelector('.btn.btn-danger[onclick*="limpiar"]');
+  let btnClave    = document.querySelector('.btn.btn-outline[onclick*="config"]');
+  let btnListo    = document.getElementById('btn-listo');
+  let timerEl     = document.getElementById('sesion-timer');
+  let btnBackup   = document.getElementById('btn-backup');
+  let btnImportar = document.getElementById('btn-importar');
+  if(btnLimpiar)  btnLimpiar.style.display  = ROL === 'admin' ? '' : 'none';
+  if(btnClave)    btnClave.style.display    = ROL === 'admin' ? '' : 'none';
+  if(btnListo)    btnListo.style.display    = (ROL === 'admin' && sesionEstaActiva()) ? 'inline-flex' : 'none';
+  if(timerEl)     timerEl.style.display     = (ROL === 'admin' && sesionEstaActiva()) ? 'flex' : 'none';
+  if(btnBackup)   btnBackup.style.display   = ROL === 'programador' ? '' : 'none';
+  if(btnImportar) btnImportar.style.display = ROL === 'programador' ? '' : 'none';
+
+  // Columnas Precio y Proveedor en tabla — ocultas para secciones
+  let ths = document.querySelectorAll('#tabla thead th');
+  if(ths[3]) ths[3].style.display = ROL === 'seccion' ? 'none' : '';
+  if(ths[4]) ths[4].style.display = ROL === 'seccion' ? 'none' : '';
+
+  // Tfoot
+  let tfootTd    = document.querySelector('#filaTotales td:first-child');
+  let tfootMonto = document.getElementById('totalPie');
+  if(ROL === 'seccion'){
+    if(tfootTd)    { tfootTd.setAttribute('colspan','3'); tfootTd.textContent = 'TOTAL REGISTROS'; }
+    if(tfootMonto) tfootMonto.style.display = 'none';
+  } else {
+    if(tfootTd)    { tfootTd.setAttribute('colspan','3'); tfootTd.textContent = 'TOTAL GENERAL'; }
+    if(tfootMonto) tfootMonto.style.display = '';
+  }
+
+  // Elementos del formulario
+  let wSeccion = document.getElementById('wrap-seccion');
+  let thProv   = document.getElementById('th-prov-form');
+  let infGrid  = document.getElementById('info-producto-grid');
+  let colHdr   = document.getElementById('col-headers-form');
+
+  if(ROL === 'admin' || ROL === 'programador'){
+    if(header)    header.style.display = '';
+    if(btnDark)   btnDark.style.display = '';
+    if(topbarMod) topbarMod.style.display = '';
+    if(regForm)   regForm.style.display = '';
+    if(layout)    layout.style.gridTemplateColumns = 'minmax(200px,1fr) minmax(0,2.4fr)';
+    if(wSeccion)  wSeccion.style.display = '';
+    if(thProv)    thProv.style.display = '';
+    if(infGrid)   infGrid.style.gridTemplateColumns = 'repeat(3,minmax(0,1fr))';
+    if(colHdr)    colHdr.classList.remove('sin-prov');
+    if(secSelect){ secSelect.disabled = false; secSelect.style.background = ''; secSelect.style.color = ''; }
+    if(!document.getElementById('productos').children.length) agregarFila();
+
+  } else if(ROL === 'comprador'){
+    if(header)    header.style.display = 'none';
+    if(btnDark)   btnDark.style.display = 'none';
+    if(topbarMod) topbarMod.style.display = 'none';
+    if(regForm)   regForm.style.display = 'none';
+    if(layout)    layout.style.gridTemplateColumns = '1fr';
+
+  } else {
+    // SECCIÓN — sin Sección ni Proveedor en formulario
+    if(header)    header.style.display = 'none';
+    if(btnDark)   btnDark.style.display = 'none';
+    if(topbarMod) topbarMod.style.display = 'none';
+    if(regForm)   regForm.style.display = '';
+    if(layout)    layout.style.gridTemplateColumns = 'minmax(220px,0.85fr) minmax(0,2fr)';
+    if(wSeccion)  wSeccion.style.display = 'none';
+    if(thProv)    thProv.style.display = 'none';
+    if(infGrid)   infGrid.style.gridTemplateColumns = '1fr 1fr';
+    if(colHdr)    colHdr.classList.add('sin-prov');
+    // Setear sección correcta y bloquear select
+    if(secSelect){
+      for(let o of secSelect.options){
+        if(o.value.toUpperCase() === SECCION_ROL || o.text.toUpperCase() === SECCION_ROL) o.selected = true;
+      }
+      secSelect.disabled = true;
+      secSelect.style.background = 'var(--surface2)';
+      secSelect.style.color = 'var(--text2)';
+    }
+    // Regenerar filas sin proveedor
+    document.getElementById('productos').innerHTML = '';
+    agregarFila();
+  }
+
+  filtrar();
+}
+
+</script>
+
+
+
+</body></html>
