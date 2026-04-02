@@ -2639,15 +2639,25 @@ function getClimaDesc(codigo, esNoche){
 }
 async function cargarClima(){
   try{
-    const url = "https://api.open-meteo.com/v1/forecast"
+    // Intentar con open-meteo directo primero, si falla usar proxy
+    const apiUrl = "https://api.open-meteo.com/v1/forecast"
       + "?latitude=-53.16&longitude=-70.91"
       + "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,snowfall,is_day"
       + "&hourly=temperature_2m,precipitation,wind_speed_10m,uv_index,weather_code,snowfall"
       + "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code,sunrise,sunset,moonrise,moonset"
       + "&timezone=America%2FPunta_Arenas&forecast_days=2";
-    let r = await fetch(url);
-    if(!r.ok) throw new Error('error '+r.status);
-    let data = await r.json();
+
+    let r, data;
+    try {
+      r = await fetch(apiUrl);
+      if(!r.ok) throw new Error('directo fallido');
+      data = await r.json();
+    } catch(e1) {
+      // Fallback: usar proxy CORS
+      r = await fetch("https://corsproxy.io/?" + encodeURIComponent(apiUrl));
+      if(!r.ok) throw new Error('proxy fallido');
+      data = await r.json();
+    }
     let cw = data.current;
 
     let temp    = Math.round(cw.temperature_2m);
