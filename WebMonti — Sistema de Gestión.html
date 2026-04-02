@@ -745,6 +745,36 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
               </div>
             </div>
             <div id="idx-alerta" style="display:none;margin-top:8px;font-size:12px;padding:4px 10px;border-radius:20px;background:#f97316;color:white;"></div>
+
+            <!-- PREVISIONES -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+
+              <!-- Previsión Mañana/Tarde de hoy -->
+              <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+                <div id="prev-hoy-titulo" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#60a5fa;margin-bottom:10px;">☀️ Previsión Mañana</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Temp. Máx</div><div id="prev-hoy-max" style="font-size:15px;font-weight:700;color:#fcd34d;">--°C</div></div>
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Temp. Mín</div><div id="prev-hoy-min" style="font-size:15px;font-weight:700;color:#93c5fd;">--°C</div></div>
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Viento</div><div id="prev-hoy-viento" style="font-size:13px;font-weight:600;color:#e2e8f0;">--</div></div>
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Lluvia</div><div id="prev-hoy-lluvia" style="font-size:13px;font-weight:600;color:#e2e8f0;">--</div></div>
+                  <div style="grid-column:1/-1;"><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Estado</div><div id="prev-hoy-desc" style="font-size:12px;font-weight:600;color:#4ade80;">--</div></div>
+                </div>
+              </div>
+
+              <!-- Previsión Mañana (día siguiente) -->
+              <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;">
+                <div id="prev-man-titulo" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#a78bfa;margin-bottom:10px;">📅 Previsión Mañana</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Temp. Máx</div><div id="prev-man-max" style="font-size:15px;font-weight:700;color:#fcd34d;">--°C</div></div>
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Temp. Mín</div><div id="prev-man-min" style="font-size:15px;font-weight:700;color:#93c5fd;">--°C</div></div>
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Viento</div><div id="prev-man-viento" style="font-size:13px;font-weight:600;color:#e2e8f0;">--</div></div>
+                  <div><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Lluvia</div><div id="prev-man-lluvia" style="font-size:13px;font-weight:600;color:#e2e8f0;">--</div></div>
+                  <div style="grid-column:1/-1;"><div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;">Estado</div><div id="prev-man-desc" style="font-size:12px;font-weight:600;color:#4ade80;">--</div></div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
 
           <!-- EFEMÉRIDES CHILE PRO -->
@@ -2631,7 +2661,7 @@ async function cargarClima(){
     function sc(id,col){ let e=document.getElementById(id); if(e) e.style.color=col; }
 
     s('idx-temp', temp + '°C');
-    s('idx-desc', cc.weatherDesc[0].value + ' · Sensación ' + sens + '°C');
+    s('idx-desc', traducirClima(cc.weatherDesc[0].value) + ' · Sensación ' + sens + '°C');
 
     // Icono según código wttr.in (similar a WMO)
     let iw = document.getElementById('idx-icono-wrap');
@@ -2676,13 +2706,89 @@ async function cargarClima(){
     }
     s('idx-fase-lunar', getFaseLunar());
 
-    let alertas = [];
+    // Traducción de descripciones al español
+    function traducirClima(desc){
+      const t = {
+        'Clear':'Despejado','Sunny':'Soleado','Partly cloudy':'Parcialmente nublado',
+        'Partly Cloudy':'Parcialmente nublado','Cloudy':'Nublado','Overcast':'Cubierto',
+        'Mist':'Neblina','Fog':'Niebla','Freezing fog':'Niebla helada',
+        'Light drizzle':'Llovizna leve','Freezing drizzle':'Llovizna helada',
+        'Heavy freezing drizzle':'Llovizna helada intensa','Light rain':'Lluvia leve',
+        'Moderate rain':'Lluvia moderada','Heavy rain':'Lluvia intensa',
+        'Light freezing rain':'Lluvia helada leve','Moderate or heavy freezing rain':'Lluvia helada intensa',
+        'Light sleet':'Aguanieve leve','Moderate or heavy sleet':'Aguanieve moderada',
+        'Light snow':'Nieve leve','Moderate snow':'Nieve moderada','Heavy snow':'Nieve intensa',
+        'Light rain shower':'Chubasco leve','Moderate or heavy rain shower':'Chubasco moderado',
+        'Torrential rain shower':'Chubasco torrencial','Light sleet showers':'Chubasco de aguanieve',
+        'Light snow showers':'Chubasco de nieve leve','Moderate or heavy snow showers':'Chubasco de nieve',
+        'Blowing snow':'Ventisca de nieve','Blizzard':'Ventisca','Thunder':'Tormenta eléctrica',
+        'Patchy rain possible':'Lluvia dispersa posible','Patchy rain nearby':'Lluvia dispersa cercana',
+        'Patchy snow possible':'Nieve dispersa posible','Patchy light drizzle':'Llovizna dispersa',
+        'Patchy light rain':'Lluvia leve dispersa','Patchy light snow':'Nieve leve dispersa',
+        'Light rain with thunder':'Lluvia con tormenta','Moderate or heavy rain with thunder':'Tormenta con lluvia',
+        'Patchy moderate snow':'Nieve moderada dispersa','Patchy heavy snow':'Nieve intensa dispersa',
+        'Ice pellets':'Granizo','Light showers of ice pellets':'Granizo leve',
+        'Moderate or heavy showers of ice pellets':'Granizo moderado',
+        'Clear ':'Despejado','Partly cloudy ':'Parcialmente nublado'
+      };
+      return t[desc] || desc;
+    }
     if(prec>5)   alertas.push('⚠ Lluvia intensa');
     if(escarcha) alertas.push('⚠ Escarcha');
     if(nieve>0)  alertas.push('❄ Nevando');
     if(parseInt(uv)>7) alertas.push('⚠ UV alto');
     let alertEl = document.getElementById('idx-alerta');
     if(alertEl){ alertEl.style.display=alertas.length>0?'block':'none'; if(alertas.length>0) alertEl.textContent=alertas.join(' · '); }
+
+    // ── PREVISIONES ──────────────────────────────────────
+    let hora = new Date().getHours();
+    let periodo = hora < 12 ? 'manana' : hora < 19 ? 'tarde' : 'noche';
+
+    // Título y rango de horas según período
+    let tituloHoy = document.getElementById('prev-hoy-titulo');
+    if(tituloHoy){
+      if(periodo === 'manana') tituloHoy.textContent = '☀️ Previsión Mañana de Hoy';
+      else if(periodo === 'tarde') tituloHoy.textContent = '🌆 Previsión Tarde de Hoy';
+      else tituloHoy.textContent = '🌙 Previsión Noche de Hoy';
+    }
+
+    // Datos de hoy (weather[0]) y mañana (weather[1])
+    let wHoy = data.weather[0];
+    let wMan = data.weather[1];
+
+    function setPrev(prefijo, w){
+      let s2 = (id,v) => { let e=document.getElementById(id); if(e) e.textContent=v; };
+      // hourly: índices 0-1=00-03h, 2-3=06-09h, 4-5=12-15h, 6-7=18-21h
+      let horasRango = periodo === 'manana' ? w.hourly.slice(0,4)
+                     : periodo === 'tarde'  ? w.hourly.slice(4,7)
+                     : w.hourly.slice(6,8); // noche: 18h-21h
+      let maxT = Math.max(...horasRango.map(h => parseInt(h.tempC)));
+      let minT = Math.min(...horasRango.map(h => parseInt(h.tempC)));
+      let vientoMax = Math.max(...horasRango.map(h => parseInt(h.windspeedKmph)));
+      let lluviaSum = horasRango.reduce((a,h) => a + parseFloat(h.precipMM||0), 0).toFixed(1);
+      let desc = traducirClima(horasRango[0].weatherDesc[0].value);
+      s2(prefijo+'-max',    maxT + '°C');
+      s2(prefijo+'-min',    minT + '°C');
+      s2(prefijo+'-viento', vientoMax + ' km/h');
+      s2(prefijo+'-lluvia', lluviaSum + ' mm');
+      s2(prefijo+'-desc',   desc);
+    }
+
+    if(wHoy) setPrev('prev-hoy', wHoy);
+    if(wMan){
+      let s2 = (id,v) => { let e=document.getElementById(id); if(e) e.textContent=v; };
+      s2('prev-man-max',    wMan.maxtempC + '°C');
+      s2('prev-man-min',    wMan.mintempC + '°C');
+      let vMan = Math.max(...wMan.hourly.map(h => parseInt(h.windspeedKmph)));
+      let lMan = wMan.hourly.reduce((a,h) => a + parseFloat(h.precipMM||0), 0).toFixed(1);
+      s2('prev-man-viento', vMan + ' km/h');
+      s2('prev-man-lluvia', lMan + ' mm');
+      s2('prev-man-desc',   traducirClima(wMan.hourly[4].weatherDesc[0].value));
+      let manana = new Date(); manana.setDate(manana.getDate()+1);
+      let diaMan = manana.toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'short'});
+      let tMan = document.getElementById('prev-man-titulo');
+      if(tMan) tMan.textContent = '📅 ' + diaMan.charAt(0).toUpperCase() + diaMan.slice(1);
+    }
 
   } catch(e){
     let el = document.getElementById('idx-desc');
