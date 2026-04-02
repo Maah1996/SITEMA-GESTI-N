@@ -626,6 +626,119 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
 .campo-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px; display:block; }
 .campo-wrap { display:flex; flex-direction:column; }
 
+/* =====================================================
+   RESPONSIVE MÓVIL — MEJORADO
+===================================================== */
+@media(max-width:600px){
+
+  /* Panel principal con padding cómodo */
+  .home-content { padding: 12px !important; }
+
+  /* Header clima e historia: stack vertical */
+  .home-content > div[style*="grid"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Cards de módulos: 2 columnas */
+  .mods-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .mod-card { padding: 14px 10px !important; }
+  .mod-desc { display: none !important; }
+  .mod-nombre { font-size: 13px !important; }
+  .mod-icono { font-size: 26px !important; }
+
+  /* Accesos rápidos: 2 columnas */
+  .accesos-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Selector de sección: 2 columnas en móvil */
+  .selector-seccion-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  #compras-selector { padding: 16px !important; }
+
+  /* Selector de compras */
+
+  /* Panel compras: padding reducido */
+  #compras-wrapper { padding: 0 !important; }
+  #compras-wrapper .box { border-radius: 10px !important; padding: 12px !important; }
+
+  /* Formulario de compra: campos apilados */
+  .info-producto { grid-template-columns: 1fr !important; gap: 8px !important; }
+
+  /* Filas de producto en móvil */
+  .fila-producto {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    padding: 8px !important;
+    background: var(--surface2) !important;
+    border-radius: 8px !important;
+    margin-bottom: 10px !important;
+    border: 1px solid var(--border) !important;
+  }
+  .col-headers { display: none !important; }
+  .btn-del-row { grid-column: 1 / -1 !important; }
+
+  /* Tabla historial: scroll horizontal con tamaño mínimo */
+  .tabla-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+  table { min-width: 580px !important; font-size: 11px !important; }
+  th, td { padding: 7px 8px !important; }
+
+  /* Botones de acción: full width apilados */
+  .acciones-form {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .acciones-form .btn { width: 100% !important; justify-content: center !important; }
+
+  /* Tabla header con búsqueda */
+  .tabla-header { flex-direction: column !important; gap: 6px !important; }
+  .tabla-header input { width: 100% !important; }
+  .tabla-header .btn { width: 100% !important; justify-content: center !important; }
+
+  /* Resumen horizontal: 1 columna en móvil muy pequeño */
+  .resumen-horizontal { grid-template-columns: 1fr !important; }
+
+  /* Sección grid: 2 columnas */
+  .seccion-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Topbar móvil más compacto */
+  .mob-topbar { padding: 8px 12px !important; }
+
+  /* Modal pantalla completa en móvil */
+  .modal { width: 96% !important; max-width: 100% !important; padding: 16px !important; }
+  .modal-clave { width: 96% !important; }
+  .modal-grid { grid-template-columns: 1fr !important; }
+
+  /* Toast en bottom center */
+  .toast { right: 10px !important; left: 10px !important; bottom: 16px !important; text-align: center !important; }
+
+  /* Ocultar texto largo en botones pequeños */
+  .btn-outline span { display: none; }
+
+  /* Layout inferior a 1 columna */
+  .layout-inferior { grid-template-columns: 1fr !important; }
+
+  /* Header KPIs */
+  .header-grid { grid-template-columns: 1fr !important; }
+
+  /* Periodo dropdown full width */
+  .periodo-dropdown { position: fixed !important; left: 10px !important; right: 10px !important; top: auto !important; }
+}
+
+/* Tablet */
+@media(min-width:601px) and (max-width:768px){
+  .mods-grid { grid-template-columns: 1fr 1fr !important; }
+  .mod-desc { font-size: 11px !important; }
+  .accesos-grid { grid-template-columns: 1fr 1fr !important; }
+  .info-producto { grid-template-columns: 1fr 1fr !important; }
+  .tabla-wrap { overflow-x: auto !important; }
+}
+
 @media print {
   /* Eliminar encabezado y pie del navegador (fecha, URL, nombre página) */
   @page { margin: 10mm; }
@@ -832,7 +945,7 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
             <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:10px;">🇨🇱 Historia de Chile</div>
             <div id="efem-chile-anio" style="font-size:12px;font-weight:600;color:#60a5fa;margin-bottom:6px;">2014 · 01 de abril</div>
             <div id="efem-chile-titulo" style="font-size:15px;font-weight:700;color:#f1f5f9;line-height:1.3;margin-bottom:8px;">Efeméride del día</div>
-            <div id="efem-chile-texto" style="font-size:12px;color:#94a3b8;line-height:1.7;margin-bottom:12px;flex:1;min-height:80px;">Iquique es una ciudad-puerto y comuna ubicada en el norte grande de Chile, capital de la provincia homónima y de la Región de Tarapacá.</div>
+            <div id="efem-chile-texto" style="font-size:18px;color:#94a3b8;line-height:1.8;margin-bottom:12px;flex:1;min-height:80px;text-align:justify;">Iquique es una ciudad-puerto y comuna ubicada en el norte grande de Chile, capital de la provincia homónima y de la Región de Tarapacá.</div>
             <a id="efem-chile-link" href="https://es.wikipedia.org/wiki/Iquique" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#f1f5f9;background:rgba(255,255,255,0.08);border-radius:8px;padding:6px 12px;text-decoration:none;border:0.5px solid rgba(255,255,255,0.12);width:fit-content;">Ver en Wikipedia →</a>
           </div>
 
@@ -900,7 +1013,7 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
       <!-- SELECTOR DE SECCIÓN / ROL -->
       <div id="compras-selector" style="padding: 28px; display: block;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;margin-bottom:16px;">Selecciona tu sección</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+        <div class="selector-seccion-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
 
           <div onclick="entrarRol(&#39;ADMINISTRACIÓN&#39;)" style="background: rgb(255, 255, 255); border: 1px solid rgb(226, 229, 238); border-radius: 12px; padding: 18px 14px; cursor: pointer; position: relative; overflow: hidden; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#2563eb&#39;;this.style.transform=&#39;translateY(-2px)&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;;this.style.transform=&#39;&#39;">
             <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2563eb;border-radius:2px 2px 0 0;"></div>
@@ -1290,15 +1403,58 @@ FILA INFERIOR: 2 columnas
 
 <div class="toast" id="toast">💾 Backup guardado — 3 registros</div>
 
+<!-- ===== FIREBASE ===== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6LrcE87cV9AI_Y_MINsFOy-NM877aCqA",
+    authDomain: "webmonti-5d700.firebaseapp.com",
+    projectId: "webmonti-5d700",
+    storageBucket: "webmonti-5d700.firebasestorage.app",
+    messagingSenderId: "193650163608",
+    appId: "1:193650163608:web:24cd7a17998e2e552075ed"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Exponer db globalmente para usarlo en el resto del código
+  window._db = db;
+  window._fsModule = { collection, getDocs, addDoc, deleteDoc, doc, setDoc, onSnapshot, query, orderBy };
+
+  // Cargar historial desde Firestore al iniciar
+  async function cargarDesdeFirestore() {
+    try {
+      const snap = await getDocs(collection(db, "compras"));
+      const datos = [];
+      snap.forEach(d => datos.push({ _id: d.id, ...d.data() }));
+      datos.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+      historial = datos;
+      if(typeof renderTabla === 'function') renderTabla();
+      if(typeof renderResumen === 'function') renderResumen();
+      console.log(`✅ ${datos.length} registros cargados desde Firestore`);
+    } catch(e) {
+      console.warn("Error cargando Firestore, usando localStorage:", e);
+    }
+  }
+
+  window._cargarDesdeFirestore = cargarDesdeFirestore;
+
+  // Esperar a que el DOM esté listo y luego cargar
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(cargarDesdeFirestore, 500);
+  });
+</script>
+
 <script>
-/* STORAGE — migra datos de versiones anteriores automáticamente */
+/* STORAGE — con Firestore + localStorage como respaldo */
 const STORAGE_KEY = "compras_v3";
 
 function cargarHistorial(){
-  // Intentar cargar desde clave actual
   let datos = localStorage.getItem(STORAGE_KEY);
   if(datos) return JSON.parse(datos);
-  // Migrar desde claves anteriores si existen
   let claveVieja = ["compras_historial_v2","compras_historial_v1","compras_v2","compras_v1"]
     .find(k => localStorage.getItem(k));
   if(claveVieja){
@@ -1314,7 +1470,28 @@ function cargarHistorial(){
 
 let historial = cargarHistorial();
 historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
-function guardarStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(historial)); }
+
+// guardarStorage: guarda en localStorage Y en Firestore
+async function guardarStorage(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
+  // Sincronizar con Firestore si está disponible
+  if(window._db && window._fsModule){
+    const { collection, addDoc, deleteDoc, doc, getDocs } = window._fsModule;
+    const db = window._db;
+    try {
+      // Borrar todos y reescribir (simple para app pequeña)
+      const snap = await getDocs(collection(db, "compras"));
+      const borrados = snap.docs.map(d => deleteDoc(doc(db, "compras", d.id)));
+      await Promise.all(borrados);
+      for(const item of historial){
+        const { _id, ...datos } = item;
+        await addDoc(collection(db, "compras"), datos);
+      }
+    } catch(e) {
+      console.warn("Error sincronizando con Firestore:", e);
+    }
+  }
+}
 
 /* DETECCIÓN DE ROL — gestionado por el index */
 let ROL         = 'seccion';
