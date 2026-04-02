@@ -28,6 +28,56 @@ html, body {
   overflow: auto;
 }
 
+@media(max-width:768px){
+  .sistema { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed !important;
+    left: -220px;
+    top: 0;
+    width: 220px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.25s ease;
+    min-height: unset;
+  }
+  .sidebar.abierto { left: 0; }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+  .sidebar-overlay.visible { display: block; }
+  .main-content { grid-column: 1; }
+  .mob-topbar {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    background: #0f172a;
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  }
+  .mob-menu-btn {
+    background: none;
+    border: none;
+    color: #f1f5f9;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+  }
+  .home-content { padding: 14px !important; }
+  .header-reloj { display: none; }
+}
+@media(min-width:769px){
+  .mob-topbar { display: none !important; }
+  .sidebar-overlay { display: none !important; }
+}
+
 /* =====================================================
 SIDEBAR
 ===================================================== */
@@ -615,10 +665,17 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
 
 <div class="sistema">
 
+  <!-- TOPBAR MÓVIL -->
+  <div class="mob-topbar" style="display:none;">
+    <button class="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+    <span style="font-size:14px;font-weight:600;color:#f1f5f9;">WebMonti</span>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
   <!-- =====================================================
   SIDEBAR
   ===================================================== -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="logo-area">
       <span class="logo-icono">🏢</span>
       <div class="logo-nombre">Mi Empresa</div>
@@ -2562,6 +2619,13 @@ function ocultarTodos(){
   document.getElementById('btn-compras').classList.remove('activo');
 }
 
+function toggleSidebar(){
+  let sb = document.getElementById('sidebar');
+  let ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('abierto');
+  ov.classList.toggle('visible');
+}
+
 function mostrar(mod){
   ocultarTodos();
   document.getElementById('btn-' + mod).classList.add('activo');
@@ -2570,6 +2634,13 @@ function mostrar(mod){
     home:'Panel Principal', horarios:'Módulo — Horarios',
     inventario:'Módulo — Inventario', temperatura:'Módulo — Temperatura'
   }[mod] || mod;
+  // Cerrar sidebar en móvil al seleccionar módulo
+  let sb = document.getElementById('sidebar');
+  let ov = document.getElementById('sidebarOverlay');
+  if(sb && sb.classList.contains('abierto')){
+    sb.classList.remove('abierto');
+    ov.classList.remove('visible');
+  }
 }
 
 function capitalizar(str){
