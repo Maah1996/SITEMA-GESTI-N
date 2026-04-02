@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo Compras</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:#eef0f5; --surface:#ffffff; --surface2:#f5f6fa; --border:#e2e5ee;
+  --blue:#2563eb; --blue-light:#dbeafe; --blue-dark:#1d4ed8;
+  --red:#ef4444; --red-light:#fee2e2;
+  --green:#16a34a; --orange:#f97316; --orange-light:#ffedd5;
+  --text:#1e293b; --text2:#64748b;
+  --shadow:0 2px 12px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --shadow-lg:0 8px 30px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.06);
+  --radius:12px; --radius-sm:8px; --th-bg:#2563eb; --tr-hover:#dbeafe;
+}
+[data-theme="dark"] {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#273548; --border:#334155;
+  --blue:#3b82f6; --blue-light:#1e3a5f; --blue-dark:#2563eb;
+  --red:#f87171; --red-light:#3b1212;
+  --green:#4ade80; --orange:#fb923c; --orange-light:#2d1a08;
+  --text:#f1f5f9; --text2:#94a3b8;
+  --shadow:0 2px 12px rgba(0,0,0,0.4),0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 30px rgba(0,0,0,0.5);
+  --th-bg:#1d4ed8; --tr-hover:#1e3a5f;
+}
+
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); padding:16px; font-size:14px; min-height:100vh; transition:background 0.3s,color 0.3s; }
+
+/* TOPBAR */
+.topbar { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px; position:relative; }
+.topbar h2 { font-size:22px; font-weight:700; letter-spacing:-0.5px; color:var(--text); margin:0; }
+.btn-darkmode { position:absolute; right:0; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer; color:var(--text); font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.btn-darkmode:hover { background:var(--border); }
+h3 { font-size:15px; font-weight:600; margin-bottom:12px; color:var(--text); }
+
+/* HEADER */
+.header { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; margin-bottom:12px; }
+.header-grid { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:12px; }
+@media(max-width:900px){ .header-grid{grid-template-columns:1fr 1fr;} }
+@media(max-width:600px){ .header-grid{grid-template-columns:1fr;} }
+
+/* LAYOUT INFERIOR — columna izq alineada con Fecha y Clima del header (1fr de 3.4fr) */
+.layout-inferior { display:grid; grid-template-columns:1fr 2.4fr; gap:12px; align-items:start; }
+@media(max-width:900px){ .layout-inferior{grid-template-columns:1fr;} }
+.col-izq { display:flex; flex-direction:column; gap:0; }
+.col-der { display:flex; flex-direction:column; }
+.box-header { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; font-size:13px; }
+.titulo-header { font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--text2); margin-bottom:8px; }
+#fechaHora { font-size:15px; font-weight:600; color:var(--text); line-height:1.5; }
+.clima-box { line-height:1.7; margin-top:6px; color:var(--text); }
+
+/* SELECTOR PERÍODO DROPDOWN */
+.periodo-btn { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 12px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text); transition:border-color 0.15s; }
+.periodo-btn:hover { border-color:var(--blue); }
+.periodo-btn.abierto { border-color:var(--blue); border-radius:var(--radius-sm) var(--radius-sm) 0 0; }
+.periodo-dropdown { display:none; position:absolute; left:0; right:0; z-index:100; background:var(--surface); border:1px solid var(--blue); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); grid-template-columns:1fr 1fr; box-shadow:var(--shadow-lg); }
+.periodo-dropdown.visible { display:grid; }
+.pd-tipos { border-right:1px solid var(--border); padding:4px 0; }
+.pd-tipo { padding:10px 14px; font-size:13px; cursor:pointer; color:var(--text); transition:background 0.1s; white-space:nowrap; }
+.pd-tipo:hover { background:var(--surface2); }
+.pd-tipo.activo { background:var(--blue-light); color:var(--blue); font-weight:600; }
+.pd-valores { padding:4px 0; overflow-y:auto; max-height:200px; }
+.pd-val { padding:9px 14px; font-size:12px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:space-between; transition:background 0.1s; font-family:'DM Mono',monospace; }
+.pd-val:hover { background:var(--surface2); }
+.pd-val.activo { background:var(--blue-light); color:var(--blue); font-weight:600; }
+.btn-reset-periodo { background:none; border:none; cursor:pointer; font-size:11px; color:var(--text2); font-family:'DM Sans',sans-serif; display:flex; align-items:center; gap:4px; padding:2px 0; }
+.btn-reset-periodo:hover { color:var(--red); }
+
+.resumen-horizontal { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+
+/* KPI cards mejoradas */
+.card-resumen {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:12px 10px 10px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.card-resumen:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.card-resumen::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:3px;
+  background:var(--blue);
+  border-radius:2px 2px 0 0;
+}
+.card-resumen:nth-child(2)::before { background:var(--green); }
+.card-resumen:nth-child(3)::before { background:var(--orange); }
+.card-resumen b { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text2); margin-bottom:6px; }
+.card-resumen span { font-size:18px; font-weight:700; color:var(--blue); display:block; }
+.card-resumen:nth-child(2) span { color:var(--green); }
+.card-resumen:nth-child(3) span { color:var(--orange); font-size:13px; }
+.card-icono { font-size:18px; margin-bottom:4px; display:block; }
+
+/* EFEMÉRIDES */
+#textoEfemeride { font-size:12px; line-height:1.5; color:var(--text); margin-bottom:6px; }
+#linkEfemeride { font-size:12px; color:var(--blue); text-decoration:none; font-weight:500; }
+#linkEfemeride:hover { text-decoration:underline; }
+
+/* SECCIÓN */
+.seccion-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+@media(max-width:600px){ .seccion-grid{grid-template-columns:1fr 1fr;} }
+.seccion-card { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 10px; }
+.sec-nombre { font-weight:700; font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px; }
+.sec-monto { font-weight:700; color:var(--blue); font-size:14px; }
+
+/* LAYOUT */
+.box { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; }
+
+/* FORMS */
+input, select { padding:8px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); font-size:13px; font-family:'DM Sans',sans-serif; width:100%; background:var(--surface2); color:var(--text); transition:border-color 0.2s,background 0.3s; }
+input:focus, select:focus { outline:none; border-color:var(--blue); background:var(--surface); }
+.info-producto { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+@media(max-width:600px){ .info-producto{grid-template-columns:1fr;} }
+
+/* FILAS (sin precio) */
+.fila-producto { display:grid; grid-template-columns:1.4fr 60px 90px 110px 36px; gap:6px; margin-bottom:8px; align-items:center; }
+.col-headers { display:grid; grid-template-columns:1.4fr 60px 90px 110px 36px; gap:6px; margin-bottom:4px; padding:0 2px; }
+@media(max-width:700px){ .fila-producto,.col-headers{grid-template-columns:1fr 1fr; gap:6px;} .col-headers{display:none;} }
+
+/* BOTONES */
+.btn { padding:9px 16px; border:none; border-radius:var(--radius-sm); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; }
+.btn-primary { background:var(--blue); color:white; }
+.btn-primary:hover { background:var(--blue-dark); transform:translateY(-1px); }
+.btn-success { background:var(--green); color:white; }
+.btn-success:hover { filter:brightness(0.9); transform:translateY(-1px); }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text2); }
+.btn-outline:hover { background:var(--surface2); }
+.btn-danger { background:var(--red-light); color:var(--red); padding:6px 10px; font-size:13px; border:none; border-radius:var(--radius-sm); cursor:pointer; font-family:'DM Sans',sans-serif; font-weight:600; }
+.btn-danger:hover { background:var(--red); color:white; }
+.btn-edit { background:var(--orange-light); color:var(--orange); padding:5px 8px; font-size:12px; font-weight:600; border:none; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+.btn-edit:hover { background:var(--orange); color:white; }
+.btn-del-row { background:var(--red-light); color:var(--red); border:none; border-radius:6px; padding:6px 8px; cursor:pointer; font-size:14px; transition:all 0.15s; width:100%; }
+.btn-del-row:hover { background:var(--red); color:white; }
+.acciones-form { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+
+/* TABLA */
+.tabla-header { display:flex; gap:8px; margin-bottom:10px; align-items:center; flex-wrap:wrap; }
+.tabla-header input { flex:1; min-width:140px; }
+.tabla-wrap { overflow-x:auto; border-radius:var(--radius-sm); border:1px solid var(--border); }
+table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:12px; min-width:780px; }
+th { background:var(--th-bg); color:white; padding:10px 12px; text-align:left; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; white-space:nowrap; }
+th.center { text-align:center; }
+td { padding:8px 12px; border-bottom:1px solid var(--border); text-align:left; color:var(--text); vertical-align:middle; font-size:12px; }
+td.center { text-align:center; }
+td.monto { text-align:left; font-weight:400; font-family:'DM Mono',monospace; }
+
+/* Filas alternadas */
+tbody tr:nth-child(even) td { background:var(--surface2); }
+tbody tr:nth-child(odd) td { background:var(--surface); }
+tbody tr:hover td { background:var(--tr-hover) !important; }
+
+/* Fila sin precio — Opción C: fila normal, solo celda precio resaltada */
+tr.sin-precio td { background:inherit; border-left:none; }
+.precio-pendiente {
+  display:inline-block;
+  font-size:11px;
+  color:#92400e;
+  background:#fefce8;
+  border:1px dashed #ca8a04;
+  border-radius:5px;
+  padding:2px 8px;
+  font-family:'DM Sans',sans-serif;
+  font-weight:500;
+  cursor:pointer;
+}
+[data-theme="dark"] .precio-pendiente {
+  background:#1c1a08;
+  color:#fbbf24;
+  border-color:#a16207;
+}
+
+/* Pie de tabla totales */
+tfoot tr td { background:var(--blue) !important; color:white !important; font-weight:700; font-size:12px; font-family:'DM Sans',sans-serif; padding:9px 12px; border:none; }
+tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
+
+.td-acciones { display:flex; gap:4px; justify-content:center; }
+
+/* Precio editable inline */
+.precio-editable { background:transparent; border:1px dashed var(--border); border-radius:5px; text-align:left; font-family:'DM Mono',monospace; font-size:12px; color:var(--text); width:100px; padding:3px 6px; transition:all 0.2s; }
+.precio-editable:hover { border-color:var(--blue); background:var(--surface2); }
+.precio-editable:focus { outline:none; border-color:var(--blue); border-style:solid; background:var(--surface); }
+
+/* Celda editable inline con sesión activa */
+.celda-edit { background:var(--blue-light); border:1px solid var(--blue); border-radius:5px; padding:3px 6px; font-family:'DM Sans',sans-serif; color:var(--text); transition:all 0.2s; }
+.celda-edit:focus { outline:none; background:var(--surface); }
+.precio-display { font-family:'DM Mono',monospace; font-size:12px; color:var(--text); cursor:pointer; padding:3px 6px; border-radius:5px; border:1px dashed transparent; transition:all 0.2s; font-weight:400; }
+.precio-display:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+.modal-clave {
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+  padding:0;
+  width:90%;
+  max-width:400px;
+  overflow:hidden;
+}
+.modal-clave-header {
+  background:var(--blue);
+  color:white;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.modal-clave-header .mc-icono { font-size:20px; }
+.modal-clave-header .mc-titulo { font-size:15px; font-weight:700; }
+.modal-clave-header .mc-subtitulo { font-size:11px; opacity:0.85; margin-top:2px; }
+.modal-clave-body { padding:20px; }
+.mc-instruccion {
+  background:var(--blue-light);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--text);
+  margin-bottom:14px;
+  line-height:1.5;
+}
+[data-theme="dark"] .mc-instruccion { background:var(--surface2); }
+.mc-instruccion b { color:var(--blue); }
+.mc-estado {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  margin-bottom:12px;
+  padding:6px 10px;
+  border-radius:6px;
+}
+.mc-estado.activa { background:var(--green-light); color:var(--green); }
+.mc-estado.sin-clave { background:var(--orange-light); color:var(--orange); }
+.mc-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px; display:block; }
+.mc-input { letter-spacing:6px; font-size:20px; text-align:center; margin-bottom:4px; }
+.mc-hint { font-size:11px; color:var(--text2); text-align:center; margin-bottom:14px; }
+.mc-error { font-size:12px; color:var(--red); text-align:center; margin-bottom:8px; display:none; }
+.mc-footer { display:flex; gap:8px; justify-content:flex-end; padding:12px 20px; border-top:1px solid var(--border); background:var(--surface2); }
+.mc-link { font-size:12px; color:var(--blue); cursor:pointer; text-decoration:underline; text-align:center; margin-top:8px; display:block; }
+.mc-link:hover { color:var(--blue-dark); }
+
+.btn-nav-edit { background:var(--surface2); border:1px solid var(--border); border-radius:6px; width:28px; height:28px; font-size:18px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:center; transition:all 0.15s; font-family:'DM Sans',sans-serif; line-height:1; }
+.btn-nav-edit:hover { background:var(--blue); color:white; border-color:var(--blue); }
+.btn-nav-edit:disabled { opacity:0.3; cursor:not-allowed; }
+.btn-nav-edit:disabled:hover { background:var(--surface2); color:var(--text); border-color:var(--border); }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.activo { display:flex; }
+.modal { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow-lg); padding:24px; width:90%; max-width:500px; }
+.modal h3 { margin-bottom:16px; }
+.modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+.modal-grid label { font-size:11px; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:0.3px; }
+.modal-grid .campo { display:flex; flex-direction:column; gap:4px; }
+.modal-acciones { display:flex; gap:8px; justify-content:flex-end; }
+
+/* TOAST */
+.toast { position:fixed; bottom:20px; right:20px; background:var(--green); color:white; padding:12px 20px; border-radius:var(--radius-sm); font-weight:600; font-size:13px; box-shadow:var(--shadow-lg); z-index:2000; transform:translateY(80px); opacity:0; transition:all 0.3s; }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.error { background:var(--red); }
+
+.campo-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:4px; display:block; }
+.campo-wrap { display:flex; flex-direction:column; }
+
+@media print {
+  /* Eliminar encabezado y pie del navegador (fecha, URL, nombre página) */
+  @page { margin: 10mm; }
+
+  /* Ocultar absolutamente todo */
+  * { visibility: hidden !important; }
+  /* Mostrar solo el printArea y sus hijos */
+  #printArea, #printArea * { visibility: visible !important; }
+  /* Ocultar el h3 "Historial de Compras" que viene dentro del printArea */
+  #printArea h3 { display:none !important; }
+  #printArea {
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100%;
+    background: white !important;
+    padding: 24px !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .no-print { display:none !important; visibility:hidden !important; }
+  .print-titulo { display:block !important; text-align:center; font-size:18px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; font-family:'DM Sans',sans-serif; color:#000; }
+  #print-subtitulo { display:block !important; text-align:center; font-size:13px; font-family:'DM Sans',sans-serif; color:#444; margin-bottom:16px; letter-spacing:0.3px; }
+  .tabla-wrap { overflow:visible !important; border:none !important; }
+  table { min-width:unset !important; width:100% !important; }
+  th { background:#2563eb !important; color:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tfoot tr td { background:#2563eb !important; color:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tbody tr:nth-child(even) td { background:#f5f6fa !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  tbody tr:nth-child(odd) td { background:#ffffff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  td, th { color:#000 !important; font-size:11px !important; }
+  .precio-pendiente { border:1px dashed #ca8a04 !important; background:#fefce8 !important; color:#92400e !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .precio-display { color:#000 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h2>🛒 MÓDULO COMPRAS</h2>
+  <button class="btn-darkmode no-print" onclick="toggleDark()" id="btnDark">🌙 Modo Oscuro</button>
+</div>
+
+<!-- ============================================================
+FILA SUPERIOR: 3 columnas → Gasto por Sección | Resumen | Efemérides
+============================================================ -->
+<div class="header">
+  <div class="header-grid">
+
+    <!-- GASTO POR SECCIÓN — reemplaza al clima -->
+    <div class="box-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="titulo-header" style="margin:0">📊 Gasto por Sección</div>
+        <span style="font-size:10px;color:var(--text2)">Según filtro activo</span>
+      </div>
+      <div class="seccion-grid" id="seccionGrid">
+        <div style="color:var(--text2);font-size:12px;grid-column:1/-1">Sin datos aún</div>
+      </div>
+    </div>
+
+    <!-- RESUMEN DE COMPRAS -->
+    <div class="box-header">
+      <div class="titulo-header">Resumen de Compras</div>
+      <div class="periodo-wrap" style="position:relative;margin-bottom:10px;">
+        <div class="periodo-btn" id="periodoBtn" onclick="togglePeriodo()">
+          <span id="labelPeriodo">Año 2026</span>
+          <span id="periodoChevron" style="font-size:11px;color:var(--text2);transition:transform 0.2s;">▼</span>
+        </div>
+        <div class="periodo-dropdown" id="periodoDropdown">
+          <div class="pd-tipos">
+            <div class="pd-tipo activo" id="pd-mes"    onclick="selTipo('mes')">Seleccionar Mes</div>
+            <div class="pd-tipo"        id="pd-semana" onclick="selTipo('semana')">Seleccionar Semana</div>
+            <div class="pd-tipo"        id="pd-dia"    onclick="selTipo('dia')">Seleccionar Día</div>
+            <div class="pd-tipo"        id="pd-anio"   onclick="selTipo('anio')">Seleccionar Año</div>
+          </div>
+          <div class="pd-valores" id="pd-valores"></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button class="btn-reset-periodo" onclick="resetFiltros()">↺ Limpiar filtro</button>
+      </div>
+      <div class="resumen-horizontal">
+        <div class="card-resumen">
+          <span class="card-icono">📦</span>
+          <b>Total Unidades</b>
+          <span id="totalProductos">0</span>
+        </div>
+        <div class="card-resumen">
+          <span class="card-icono">💰</span>
+          <b>Total Invertido</b>
+          <span id="totalDinero">$0</span>
+        </div>
+        <div class="card-resumen">
+          <span class="card-icono">🏆</span>
+          <b>Más Comprado</b>
+          <span id="topProducto">-</span>
+        </div>
+      </div>
+      <input type="hidden" id="anioFiltro">
+      <input type="hidden" id="mesFiltro">
+      <input type="hidden" id="semanaFiltro">
+      <input type="hidden" id="diaFiltro">
+    </div>
+
+    <!-- EFEMÉRIDES -->
+    <div class="box-header">
+      <div class="titulo-header">Efemérides del Día</div>
+      <div id="textoEfemeride">Cargando...</div>
+      <a id="linkEfemeride" target="_blank">Ver más en Wikipedia →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+FILA INFERIOR: 2 columnas
+  Izquierda → Registrar Compra
+  Derecha   → Historial de Compras (ocupa todo el alto)
+============================================================ -->
+<div class="layout-inferior">
+
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="col-izq">
+
+    <!-- REGISTRAR COMPRA -->
+    <div class="box no-print">
+      <h3>📦 Registrar Compra</h3>
+      <div class="info-producto">
+        <div class="campo-wrap"><span class="campo-label">Quien Compra</span><input id="nombreCompra" placeholder="Nombre"></div>
+        <div class="campo-wrap">
+          <span class="campo-label">Sección</span>
+          <select id="seccion">
+            <option>Administración</option><option>Bodega</option><option>Cocina</option>
+            <option>Panadería</option><option>Pastelería</option><option>Sala de ventas</option>
+          </select>
+        </div>
+        <div class="campo-wrap"><span class="campo-label">Fecha</span><input type="date" id="fechaCompra"></div>
+      </div>
+      <div class="col-headers">
+        <span class="campo-label">Producto</span>
+        <span class="campo-label">Cant.</span>
+        <span class="campo-label">Unidad</span>
+        <span class="campo-label">Proveedor</span>
+        <span class="campo-label"></span>
+      </div>
+      <div id="productos"></div>
+      <div class="acciones-form">
+        <button class="btn btn-outline" onclick="agregarFila()">➕ Agregar fila</button>
+        <button class="btn btn-success" onclick="enviar()">📤 Enviar compra</button>
+      </div>
+    </div>
+
+  </div><!-- fin col-izq -->
+
+  <!-- COLUMNA DERECHA: HISTORIAL -->
+  <div class="col-der">
+    <div class="box" id="printArea" style="height:100%;">
+      <span class="print-titulo" style="display:none">RESUMEN DE COMPRAS</span>
+      <span id="print-subtitulo" style="display:none;text-align:center;font-size:13px;font-family:'DM Sans',sans-serif;color:#444;margin-bottom:14px;display:none;width:100%;"></span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h3 style="margin:0">📋 Historial de Compras</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div id="sesion-timer" style="display:none;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--green-light);color:var(--green);font-family:'DM Mono',monospace;"></div>
+          <button id="btn-listo" class="btn btn-danger no-print" style="display:none;font-size:12px;padding:5px 12px;" onclick="bloquearSesionManual()">🔒 Listo</button>
+          <button class="btn btn-outline no-print" style="font-size:12px;padding:5px 10px;" onclick="pedirClave('config')">🔑 Clave</button>
+        </div>
+      </div>
+      <div class="tabla-header no-print">
+        <input type="text" id="buscador" placeholder="🔍 Buscar producto, proveedor, sección..." oninput="filtrar()">
+        <select id="filtroProv" onchange="filtrar()" style="width:150px;flex:none">
+          <option value="">Todos los proveedores</option>
+        </select>
+        <button class="btn btn-outline" onclick="exportarExcel()">📊 Excel</button>
+        <button class="btn btn-outline" onclick="imprimirHistorial()">🖨️ Imprimir</button>
+        <button class="btn btn-outline" style="color:var(--green);border-color:var(--green);" onclick="exportarBackup()" title="Exportar backup de datos">💾 Backup</button>
+        <label class="btn btn-outline" style="color:var(--blue);border-color:var(--blue);cursor:pointer;" title="Importar backup de datos">
+          📂 Importar
+          <input type="file" accept=".json" onchange="importarBackup(this)" style="display:none">
+        </label>
+        <button class="btn btn-danger" onclick="pedirClave('limpiar')">🗑️</button>
+      </div>
+      <div class="tabla-wrap">
+        <table id="tabla">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="center">Cant.</th>
+              <th class="center">Unidad</th>
+              <th>Precio $</th>
+              <th>Proveedor</th>
+              <th>Sección</th>
+              <th>Comprador</th>
+              <th>Fecha</th>
+              <th class="center no-print">Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr id="filaTotales">
+              <td colspan="3">TOTAL GENERAL</td>
+              <td class="monto" id="totalPie">$0</td>
+              <td colspan="5"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div><!-- fin col-der -->
+
+</div><!-- fin layout-inferior -->
+
+<!-- MODAL CLAVE -->
+<div class="modal-overlay" id="modalClave">
+  <div class="modal-clave">
+    <div class="modal-clave-header">
+      <span class="mc-icono" id="mc-icono">🔐</span>
+      <div>
+        <div class="mc-titulo" id="clavetitulo">Acceso Restringido</div>
+        <div class="mc-subtitulo" id="clavetexto">Ingresa la clave para continuar</div>
+      </div>
+    </div>
+    <div class="modal-clave-body">
+      <div class="mc-instruccion" id="mc-instruccion">Ingresa tu clave para continuar.</div>
+      <div class="mc-estado" id="mc-estado"><span>Verificando...</span></div>
+
+      <!-- Panel clave del día (solo visible tras verificar clave maestra) -->
+      <div id="mc-clave-dia-panel" style="display:none;text-align:center;margin:10px 0 14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Clave del día para el personal</div>
+        <div id="mc-clave-dia-valor" style="font-size:36px;font-weight:700;letter-spacing:10px;color:var(--blue);font-family:'DM Mono',monospace;padding:10px;background:var(--blue-light);border-radius:8px;">----</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:6px;">Esta clave expira a medianoche</div>
+      </div>
+
+      <span class="mc-label" id="mc-label-input">Ingresa tu clave</span>
+      <input type="password" id="claveInput" class="mc-input"
+        placeholder="· · · · · ·" maxlength="20"
+        onkeydown="if(event.key==='Enter') verificarClave()"
+        oninput="document.getElementById('mc-error').style.display='none'">
+      <div class="mc-hint">Presiona Enter o el botón para confirmar</div>
+      <div class="mc-error" id="mc-error">❌ Clave incorrecta</div>
+      <span class="mc-link" id="mc-link-cambiar" style="display:none" onclick="iniciarCambioClave()">→ Cambiar clave existente</span>
+    </div>
+    <div class="mc-footer">
+      <button class="btn btn-outline" onclick="cerrarModalClave()">Cancelar</button>
+      <button class="btn btn-primary" onclick="verificarClave()" id="mc-btn-confirmar">🔓 Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDICIÓN -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <!-- Header con navegación -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="margin:0">✏️ Editar Registro</h3>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span id="editContador" style="font-size:11px;color:var(--text2);font-weight:600;"></span>
+        <button id="btnEditAnterior" class="btn-nav-edit" onclick="navegarEdicion(-1)" title="Registro anterior">‹</button>
+        <button id="btnEditSiguiente" class="btn-nav-edit" onclick="navegarEdicion(1)" title="Registro siguiente">›</button>
+      </div>
+    </div>
+    <input type="hidden" id="editIndex">
+    <div class="modal-grid">
+      <div class="campo"><label>Producto</label><input id="editNombre"></div>
+      <div class="campo"><label>Cantidad</label><input type="number" id="editCant"></div>
+      <div class="campo"><label>Unidad</label>
+        <select id="editUnidad">
+          <option>UNIDAD</option><option>UNIDADES</option><option>LTS</option><option>KLS</option>
+          <option>GRS</option><option>BOLSAS</option><option>ELEMENTOS</option>
+          <option>CAJAS</option><option>SACOS</option>
+        </select>
+      </div>
+      <div class="campo"><label>Precio $</label><input type="number" id="editPrecio"></div>
+      <div class="campo"><label>Proveedor</label><input id="editProveedor"></div>
+      <div class="campo"><label>Sección</label>
+        <select id="editSeccion">
+          <option value="ADMINISTRACIÓN">Administración</option>
+          <option value="BODEGA">Bodega</option>
+          <option value="COCINA">Cocina</option>
+          <option value="PANADERÍA">Panadería</option>
+          <option value="PASTELERÍA">Pastelería</option>
+          <option value="SALA DE VENTAS">Sala de ventas</option>
+        </select>
+      </div>
+      <div class="campo"><label>Comprador</label><input id="editComprador"></div>
+      <div class="campo"><label>Fecha</label><input type="date" id="editFecha"></div>
+    </div>
+    <div class="modal-acciones">
+      <button class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEdicionYNavegar()">💾 Guardar y continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LISTA DE PRODUCTOS -->
+<div class="modal-overlay" id="modalProductosOverlay">
+  <div class="modal" style="max-width:380px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="margin:0">📦 Productos</h3>
+      <span id="modalProductosTitulo" style="font-size:12px;color:var(--text2);font-weight:600;"></span>
+    </div>
+    <div id="modalProductosLista" style="max-height:340px;overflow-y:auto;padding-right:4px;"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button class="btn btn-outline" onclick="document.getElementById('modalProductosOverlay').classList.remove('activo')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* STORAGE — migra datos de versiones anteriores automáticamente */
+const STORAGE_KEY = "compras_v3";
+
+function cargarHistorial(){
+  // Intentar cargar desde clave actual
+  let datos = localStorage.getItem(STORAGE_KEY);
+  if(datos) return JSON.parse(datos);
+  // Migrar desde claves anteriores si existen
+  let claveVieja = ["compras_historial_v2","compras_historial_v1","compras_v2","compras_v1"]
+    .find(k => localStorage.getItem(k));
+  if(claveVieja){
+    let migrados = JSON.parse(localStorage.getItem(claveVieja) || "[]");
+    if(migrados.length > 0){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrados));
+      showToast(`✅ ${migrados.length} registros migrados automáticamente`);
+      return migrados;
+    }
+  }
+  return [];
+}
+
+let historial = cargarHistorial();
+historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+function guardarStorage(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(historial)); }
+
+/* MODO OSCURO */
+let darkMode = localStorage.getItem("darkMode") === "true";
+function aplicarTema(){
+  document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+  document.getElementById("btnDark").textContent = darkMode ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
+  localStorage.setItem("darkMode", darkMode);
+}
+function toggleDark(){ darkMode = !darkMode; aplicarTema(); }
+aplicarTema();
+
+/* TOAST */
+function showToast(msg, tipo="ok"){
+  let t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast" + (tipo==="error"?" error":"") + " show";
+  setTimeout(()=> t.className="toast", 2800);
+}
+
+/* =====================================================
+MÓDULO SELECTOR DE PERÍODO — Dropdown estilo foto
+===================================================== */
+const MESES_CORTO = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+const MESES_LARGO = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const DIAS_CORTO  = ["dom","lun","mar","mié","jue","vie","sáb"];
+
+let periodoAbierto = false;
+let tipoActivoPD   = "mes";
+let valorActivoPD  = { tipo:"anio", valor: String(new Date().getFullYear()), label: "Año " + new Date().getFullYear() };
+
+// Genera lista de semanas de más reciente a más antigua
+function listarSemanas(){
+  let lista = [];
+  let hoy   = new Date();
+
+  // Lunes de la semana actual
+  let dow       = hoy.getDay();
+  let lunesBase = new Date(hoy);
+  lunesBase.setDate(hoy.getDate() - (dow === 0 ? 6 : dow - 1));
+  lunesBase.setHours(0,0,0,0);
+
+  for(let i = 0; i < 16; i++){
+    let lunes   = new Date(lunesBase);
+    lunes.setDate(lunesBase.getDate() - i * 7);
+    let domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+
+    // Número semana ISO para el value
+    let tmp     = new Date(lunes);
+    tmp.setDate(tmp.getDate() + 3 - (tmp.getDay() + 6) % 7);
+    let w1      = new Date(tmp.getFullYear(), 0, 4);
+    let numSem  = 1 + Math.round(((tmp - w1) / 86400000 - 3 + (w1.getDay() + 6) % 7) / 7);
+    let val     = `${tmp.getFullYear()}-W${String(numSem).padStart(2,"0")}`;
+
+    let dL   = lunes.getDate();
+    let dD   = domingo.getDate();
+    let mesL = MESES_CORTO[lunes.getMonth()];
+    let mesD = MESES_CORTO[domingo.getMonth()];
+    let aa   = String(domingo.getFullYear()).slice(2);
+
+    // Formato: "SEM del 30 MAR al 05 ABR 26" si cruza mes
+    //          "SEM del 23 al 29 MAR 26"      si mismo mes
+    let label = lunes.getMonth() !== domingo.getMonth()
+      ? `SEM del ${dL} ${mesL} al ${String(dD).padStart(2,"0")} ${mesD} ${aa}`
+      : `SEM del ${dL} al ${String(dD).padStart(2,"0")} ${mesD} ${aa}`;
+
+    lista.push({ val, label });
+  }
+  return lista;
+}
+
+// Genera lista de meses — más reciente primero (mes actual arriba)
+function listarMeses(){
+  let lista = [];
+  let hoy   = new Date();
+  for(let i = 0; i < 24; i++){
+    let d   = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    let val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    let mes = MESES_LARGO[d.getMonth()].toUpperCase();
+    let aa  = String(d.getFullYear()).slice(2);
+    lista.push({ val, label: `${mes} ${aa}` });
+  }
+  return lista;
+}
+
+// Genera lista de días — más reciente primero
+function listarDias(){
+  let lista = [], hoy = new Date();
+  for(let i = 0; i < 30; i++){
+    let d   = new Date(hoy);
+    d.setDate(hoy.getDate() - i);
+    let val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    let dia = DIAS_CORTO[d.getDay()];
+    let num = String(d.getDate()).padStart(2,"0");
+    let mes = MESES_CORTO[d.getMonth()];
+    let aa  = String(d.getFullYear()).slice(2);
+    lista.push({ val, label: `${dia} ${num} ${mes} ${aa}` });
+  }
+  return lista;
+}
+
+// Genera lista de años
+function listarAnios(){
+  let lista = [], hoy = new Date().getFullYear();
+  for(let y=hoy; y>=2020; y--) lista.push({ val: String(y), label: String(y) });
+  return lista;
+}
+
+function togglePeriodo(){
+  periodoAbierto = !periodoAbierto;
+  document.getElementById("periodoDropdown").classList.toggle("visible", periodoAbierto);
+  document.getElementById("periodoBtn").classList.toggle("abierto", periodoAbierto);
+  document.getElementById("periodoChevron").style.transform = periodoAbierto ? "rotate(180deg)" : "";
+  if(periodoAbierto) renderPDValores();
+}
+
+function selTipo(tipo){
+  tipoActivoPD = tipo;
+  ["mes","semana","dia","anio"].forEach(t=>{
+    document.getElementById("pd-"+t).classList.toggle("activo", t===tipo);
+  });
+  renderPDValores();
+}
+
+function renderPDValores(){
+  let lista = tipoActivoPD==="mes"    ? listarMeses()
+            : tipoActivoPD==="semana" ? listarSemanas()
+            : tipoActivoPD==="dia"    ? listarDias()
+            : listarAnios();
+
+  document.getElementById("pd-valores").innerHTML = lista.map(v=>`
+    <div class="pd-val ${v.val===valorActivoPD.valor && tipoActivoPD===valorActivoPD.tipo ? 'activo' : ''}"
+         onclick="selValorPD('${v.val}','${v.label}','${tipoActivoPD}')">
+      <span>${v.label}</span>
+      ${v.val===valorActivoPD.valor && tipoActivoPD===valorActivoPD.tipo ? '<span>✓</span>' : ''}
+    </div>`).join("");
+}
+
+function selValorPD(val, label, tipo){
+  valorActivoPD = { tipo, valor: val, label };
+  document.getElementById("labelPeriodo").textContent = label;
+
+  // Actualizar inputs ocultos para getFiltrados()
+  document.getElementById("anioFiltro").value   = tipo==="anio"   ? val : (tipo==="mes" ? val.split("-")[0] : tipo==="semana" ? val.split("-W")[0] : val.split("-")[0]);
+  document.getElementById("mesFiltro").value    = tipo==="mes"    ? val : "";
+  document.getElementById("semanaFiltro").value = tipo==="semana" ? val : "";
+  document.getElementById("diaFiltro").value    = tipo==="dia"    ? val : "";
+
+  periodoAbierto = false;
+  document.getElementById("periodoDropdown").classList.remove("visible");
+  document.getElementById("periodoBtn").classList.remove("abierto");
+  document.getElementById("periodoChevron").style.transform = "";
+  calcularResumen();
+}
+
+function resetFiltros(){
+  let anio = String(new Date().getFullYear());
+  valorActivoPD = { tipo:"anio", valor: anio, label: "Año " + anio };
+  document.getElementById("labelPeriodo").textContent = "Año " + anio;
+  document.getElementById("anioFiltro").value   = anio;
+  document.getElementById("mesFiltro").value    = "";
+  document.getElementById("semanaFiltro").value = "";
+  document.getElementById("diaFiltro").value    = "";
+  periodoAbierto = false;
+  document.getElementById("periodoDropdown").classList.remove("visible");
+  document.getElementById("periodoBtn").classList.remove("abierto");
+  calcularResumen();
+  showToast("↺ Filtro restablecido");
+}
+
+// Cerrar dropdown al hacer clic fuera
+document.addEventListener("click", function(e){
+  let wrap = document.querySelector(".periodo-wrap");
+  if(wrap && !wrap.contains(e.target)){
+    periodoAbierto = false;
+    document.getElementById("periodoDropdown").classList.remove("visible");
+    document.getElementById("periodoBtn").classList.remove("abierto");
+    document.getElementById("periodoChevron").style.transform = "";
+  }
+});
+
+// Inicializar con año actual
+document.getElementById("anioFiltro").value = String(new Date().getFullYear());
+
+/* EFEMÉRIDES */
+async function efemeride(){
+  try{
+    let hoy=new Date();
+    let r=await fetch(`https://es.wikipedia.org/api/rest_v1/feed/onthisday/events/${hoy.getMonth()+1}/${hoy.getDate()}`);
+    let data=await r.json(), e=data.events[0];
+    document.getElementById("textoEfemeride").innerHTML=`📜 <b>${e.year}:</b> ${e.text.substring(0,130)}...`;
+    document.getElementById("linkEfemeride").href=e.pages[0].content_urls.desktop.page;
+  }catch(e){ document.getElementById("textoEfemeride").innerHTML="No disponible"; }
+}
+efemeride();
+
+/* AGREGAR FILA — sin precio ✅ */
+function agregarFila(){
+  let d=document.createElement("div"); d.className="fila-producto";
+  d.innerHTML=`
+    <input placeholder="Nombre producto">
+    <input type="number" placeholder="0" min="0">
+    <select>
+      <option>Unidad</option><option>Unidades</option><option>Lts</option><option>Kls</option>
+      <option>Grs</option><option>Bolsas</option><option>Elementos</option>
+      <option>Cajas</option><option>Sacos</option>
+    </select>
+    <input placeholder="Proveedor">
+    <button class="btn-del-row" onclick="this.parentElement.remove()" title="Quitar">✕</button>`;
+  document.getElementById("productos").appendChild(d);
+}
+agregarFila();
+
+/* ENVIAR */
+function enviar(){
+  let nombre  = document.getElementById("nombreCompra").value.trim();
+  let seccion = document.getElementById("seccion").value;
+  let fecha   = document.getElementById("fechaCompra").value;
+  if(!fecha){ showToast("⚠️ Ingresa la fecha de compra","error"); return; }
+
+  let filas = document.querySelectorAll(".fila-producto"), agregados = 0;
+  filas.forEach(f=>{
+    let inputs = f.querySelectorAll("input"), sel = f.querySelector("select");
+    let prod      = inputs[0].value.trim();
+    let cant      = Number(inputs[1].value);
+    let proveedor = inputs[2].value.trim();
+    if(prod && cant > 0){
+      historial.push({
+        nombre:    prod.toUpperCase(),
+        cant,
+        unidad:    sel.value.toUpperCase(),
+        precio:    0,
+        proveedor: proveedor ? proveedor.toUpperCase() : "-",
+        seccion:   seccion.toUpperCase(),
+        comprador: nombre ? nombre.toUpperCase() : "-",
+        fecha
+      });
+      agregados++;
+    }
+  });
+
+  if(agregados===0){ showToast("⚠️ Agrega al menos un producto con cantidad","error"); return; }
+
+  historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+  guardarStorage(); filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  document.getElementById("productos").innerHTML=""; agregarFila();
+  showToast(`✅ ${agregados} producto(s) ingresado(s) — agrega el precio en la tabla`);
+}
+
+/* =====================================================
+UTILIDADES DE FORMATO
+===================================================== */
+// Capitaliza correctamente: primera letra mayúscula en cada palabra, resto minúscula
+function capitalizar(str){
+  if(!str) return str;
+  return str.toLowerCase().replace(/(?:^|\s|-)\S/g, l => l.toUpperCase());
+}
+
+// Mayúscula correcta para guardar en historial: capitaliza cada palabra
+function mayusculaCorrecta(str){
+  if(!str || str==="-") return str;
+  return str.trim().toLowerCase()
+    .replace(/(?:^|\s)\S/g, l => l.toUpperCase());
+}
+
+// Formato moneda chilena confiable: $65.000 (sin depender de toLocaleString)
+function formatPeso(n){
+  let num = Math.round(Number(n));
+  let str = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return "$" + str;
+}
+
+// Fecha: 2026-04-01 → 01/04/2026
+function formatFecha(f){
+  if(!f) return "-";
+  let p = f.split("-");
+  if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`;
+  return f;
+}
+
+/* =====================================================
+SISTEMA DE CLAVE DIARIA + SESIÓN DE 2 MINUTOS
+  CLAVE MAESTRA : 372026  → solo el jefe
+  CLAVE DEL DÍA : 4 números generados diariamente
+  SESIÓN        : 2 minutos tras ingresar clave del día
+===================================================== */
+const CLAVE_MAESTRA   = "372026";
+const SESION_MS       = 2 * 60 * 1000; // 2 minutos
+let accionClave       = "";
+let pendienteIdx      = null;
+let esperandoMaestra  = false;
+let sesionTimer       = null;
+let sesionExpira      = 0;
+let sesionActiva      = false;
+let contadorInterval  = null;
+
+/* Genera clave del día — 4 dígitos basados en la fecha actual */
+function generarClaveDia(){
+  let hoy  = new Date();
+  let seed = hoy.getFullYear() * 10000 + (hoy.getMonth()+1) * 100 + hoy.getDate();
+  // Algoritmo simple pero consistente: misma fecha = misma clave
+  let a = ((seed * 1103515245 + 12345) & 0x7fffffff) % 10000;
+  return String(a).padStart(4, "0");
+}
+
+/* Estado de sesión */
+function sesionEstaActiva(){
+  return sesionActiva && Date.now() < sesionExpira;
+}
+
+function iniciarSesion(){
+  sesionActiva = true;
+  sesionExpira = Date.now() + SESION_MS;
+  if(sesionTimer) clearTimeout(sesionTimer);
+  sesionTimer = setTimeout(expirarSesion, SESION_MS);
+  document.getElementById("btn-listo").style.display = "inline-flex";
+  actualizarContador();
+  render(); // re-render para mostrar campos editables
+  showToast("🔓 Acceso concedido — 2 minutos para editar");
+}
+
+function expirarSesion(){
+  sesionActiva = false;
+  sesionExpira = 0;
+  if(contadorInterval) clearInterval(contadorInterval);
+  document.getElementById("sesion-timer").style.display = "none";
+  document.getElementById("btn-listo").style.display    = "none";
+  showToast("🔒 Sesión expirada — pide la clave del día de nuevo", "error");
+  render(); // re-render para bloquear campos
+}
+
+function bloquearSesionManual(){
+  if(sesionTimer) clearTimeout(sesionTimer);
+  if(contadorInterval) clearInterval(contadorInterval);
+  sesionActiva = false;
+  sesionExpira = 0;
+  document.getElementById("sesion-timer").style.display = "none";
+  document.getElementById("btn-listo").style.display    = "none";
+  showToast("🔒 Historial bloqueado correctamente");
+  render(); // re-render para bloquear campos
+}
+
+function actualizarContador(){
+  if(contadorInterval) clearInterval(contadorInterval);
+  let timerEl = document.getElementById("sesion-timer");
+  timerEl.style.display = "flex";
+  contadorInterval = setInterval(()=>{
+    let restante = Math.max(0, sesionExpira - Date.now());
+    let seg = Math.ceil(restante / 1000);
+    let min = Math.floor(seg / 60);
+    let s   = seg % 60;
+    timerEl.textContent = `🔓 ${min}:${String(s).padStart(2,"0")}`;
+    // Cambia color cuando quedan menos de 30 segundos
+    if(restante < 30000){
+      timerEl.style.background = "var(--red-light)";
+      timerEl.style.color = "var(--red)";
+    } else {
+      timerEl.style.background = "var(--green-light)";
+      timerEl.style.color = "var(--green)";
+    }
+    if(restante <= 0){
+      clearInterval(contadorInterval);
+      expirarSesion();
+    }
+  }, 1000);
+}
+
+/* Modal */
+function pedirClave(accion){
+  accionClave      = accion;
+  esperandoMaestra = false;
+
+  document.getElementById("mc-error").style.display        = "none";
+  document.getElementById("claveInput").value              = "";
+  document.getElementById("mc-link-cambiar").style.display = "none";
+  document.getElementById("mc-clave-dia-panel").style.display = "none";
+  document.getElementById("claveInput").style.display      = "block";
+  document.getElementById("mc-label-input").style.display  = "block";
+  document.getElementById("mc-btn-confirmar").style.display = "inline-flex";
+  document.querySelector(".mc-hint").style.display          = "block";
+
+  let estadoEl = document.getElementById("mc-estado");
+
+  if(accion === "config"){
+    // Jefe → pide clave maestra
+    document.getElementById("mc-icono").textContent         = "👔";
+    document.getElementById("clavetitulo").textContent      = "Acceso Jefe";
+    document.getElementById("clavetexto").textContent       = "Solo el jefe puede ver la clave del día";
+    document.getElementById("mc-instruccion").innerHTML     = "Ingresa la <b>clave maestra</b> para ver la clave del día que debes entregar al personal.";
+    document.getElementById("mc-btn-confirmar").textContent = "🔑 Ingresar";
+    estadoEl.className = "mc-estado activa";
+    estadoEl.innerHTML = "🔐 Acceso exclusivo del jefe";
+
+  } else {
+    // Personal → si sesión activa, ejecutar directo sin pedir clave
+    if(sesionEstaActiva()){
+      cerrarModalClave();
+      if(accion === "limpiar")       ejecutarLimpiar();
+      else if(accion === "editar")   ejecutarEdicion();
+      else if(accion === "eliminar") ejecutarEliminar();
+      return;
+    }
+    // Sin sesión → pedir clave del día
+    document.getElementById("mc-icono").textContent         = "🔐";
+    document.getElementById("clavetitulo").textContent      = "Clave del Día";
+    document.getElementById("clavetexto").textContent       = "Solicita la clave al jefe";
+    document.getElementById("mc-instruccion").innerHTML     = "Ingresa la <b>clave del día</b> de 4 dígitos que el jefe te proporcionó.<br>Tendrás <b>2 minutos</b> para editar el historial.";
+    document.getElementById("mc-btn-confirmar").textContent = "🔓 Ingresar";
+    estadoEl.className = "mc-estado activa";
+    estadoEl.innerHTML = "🔒 Historial bloqueado — ingresa la clave del día";
+  }
+
+  document.getElementById("modalClave").classList.add("activo");
+  setTimeout(()=> document.getElementById("claveInput").focus(), 100);
+}
+
+function cerrarModalClave(){
+  document.getElementById("modalClave").classList.remove("activo");
+  accionClave      = "";
+  pendienteIdx     = null;
+  esperandoMaestra = false;
+}
+
+function iniciarCambioClave(){ pedirClave("config"); }
+
+function verificarClave(){
+  let ingresada = document.getElementById("claveInput").value.trim();
+  let claveDia  = generarClaveDia();
+
+  if(!ingresada){
+    document.getElementById("mc-error").textContent = "⚠️ Debes ingresar la clave";
+    document.getElementById("mc-error").style.display = "block";
+    return;
+  }
+
+  // ── JEFE: verificar clave maestra ──────────────────────────
+  if(accionClave === "config"){
+    if(!esperandoMaestra){
+      if(ingresada !== CLAVE_MAESTRA){
+        document.getElementById("mc-error").textContent = "❌ Clave maestra incorrecta";
+        document.getElementById("mc-error").style.display = "block";
+        document.getElementById("claveInput").value = "";
+        document.getElementById("claveInput").focus();
+        return;
+      }
+      // Mostrar clave del día → ocultar input
+      esperandoMaestra = true;
+      document.getElementById("mc-clave-dia-valor").textContent = claveDia;
+      document.getElementById("mc-clave-dia-panel").style.display = "block";
+      document.getElementById("claveInput").style.display      = "none";
+      document.getElementById("mc-label-input").style.display  = "none";
+      document.getElementById("mc-btn-confirmar").style.display = "none";
+      document.querySelector(".mc-hint").style.display          = "none";
+      document.getElementById("mc-error").style.display        = "none";
+      document.getElementById("mc-instruccion").innerHTML =
+        "✅ <b>Clave maestra correcta.</b><br>Entrega los 4 dígitos al personal que necesite editar el historial hoy.<br><br>La clave cambia automáticamente cada día a medianoche.";
+      document.getElementById("mc-estado").className = "mc-estado activa";
+      document.getElementById("mc-estado").innerHTML = "👔 Jefe verificado";
+      return;
+    }
+    return;
+  }
+
+  // ── PERSONAL: verificar clave del día ──────────────────────
+  if(ingresada !== claveDia){
+    document.getElementById("mc-error").textContent = "❌ Clave incorrecta — solicita la clave al jefe";
+    document.getElementById("mc-error").style.display = "block";
+    document.getElementById("claveInput").value = "";
+    document.getElementById("claveInput").focus();
+    return;
+  }
+
+  // Clave del día correcta → iniciar sesión 2 min
+  cerrarModalClave();
+  iniciarSesion();
+
+  // Ejecutar acción pendiente
+  if(accionClave === "limpiar")       ejecutarLimpiar();
+  else if(accionClave === "editar")   ejecutarEdicion();
+  else if(accionClave === "eliminar") ejecutarEliminar();
+}
+
+document.getElementById("modalClave").addEventListener("click", function(e){
+  if(e.target === this) cerrarModalClave();
+});
+
+/* =====================================================
+FILTRO PROVEEDORES
+===================================================== */
+function actualizarFiltroProveedores(){
+  let sel=document.getElementById("filtroProv"), actual=sel.value;
+  let provs=[...new Set(historial.map(x=>x.proveedor).filter(p=>p&&p!=="-"))].sort();
+  sel.innerHTML=`<option value="">Todos los proveedores</option>`;
+  provs.forEach(p=>{ let o=document.createElement("option"); o.value=p; o.text=p; if(p===actual) o.selected=true; sel.appendChild(o); });
+}
+
+/* =====================================================
+RENDER TABLA — mejorado ✅
+===================================================== */
+function render(datos){
+  let lista = datos !== undefined ? datos : historial;
+  let tb = document.querySelector("#tabla tbody");
+  tb.innerHTML = "";
+
+  if(lista.length === 0){
+    tb.innerHTML = `<tr><td colspan="10" style="color:var(--text2);padding:20px;font-family:'DM Sans',sans-serif;text-align:center">Sin registros aún</td></tr>`;
+    actualizarTotalPie(0);
+    return;
+  }
+
+  let totalGeneral = 0;
+
+  lista.forEach((x, i) => {
+    let idx       = datos ? historial.indexOf(x) : i;
+    let sinPrecio = !x.precio || Number(x.precio) === 0;
+    let precio    = Number(x.precio);
+    totalGeneral += precio;
+    let activa    = sesionEstaActiva();
+
+    // PRECIO — editable solo con sesión activa
+    let celdaPrecio = "";
+    if(!activa){
+      // Bloqueado: solo muestra el valor
+      celdaPrecio = sinPrecio
+        ? `<span class="precio-pendiente" style="cursor:default;opacity:0.7">$ pendiente</span>`
+        : `<span style="font-family:'DM Mono',monospace;font-size:12px">${formatPeso(precio)}</span>`;
+    } else {
+      // Sesión activa: editable
+      celdaPrecio = sinPrecio
+        ? `<span class="precio-pendiente" onclick="this.style.display='none';this.nextSibling.style.display='inline-block'" title="Clic para ingresar precio">$ pendiente</span>
+           <input class="precio-editable" type="number" value="" style="display:none;width:90px" placeholder="0" min="0"
+             onblur="if(this.value)editarPrecioInline(${idx},this.value);this.previousSibling.style.display='inline-block';this.style.display='none'"
+             onchange="editarPrecioInline(${idx},this.value)">`
+        : `<span class="precio-display" onclick="this.style.display='none';this.nextSibling.style.display='inline-block'">${formatPeso(precio)}</span>
+           <input class="precio-editable" type="number" value="${precio}" style="display:none;width:90px"
+             onblur="if(this.value)editarPrecioInline(${idx},this.value);this.style.display='none';this.previousSibling.style.display='inline-block'"
+             onchange="editarPrecioInline(${idx},this.value)">`;
+    }
+
+    // PROVEEDOR, SECCIÓN, COMPRADOR — editables inline solo con sesión
+    let secciones = ["Administración","Bodega","Cocina","Panadería","Pastelería","Sala de ventas"];
+    let unidades  = ["UNIDAD","LTS","KLS","GRS","BOLSAS","ELEMENTOS","CAJAS","SACOS"];
+
+    let celdaProv = activa
+      ? `<input class="celda-edit" value="${x.proveedor}" onchange="editarCampoInline(${idx},'proveedor',this.value)" style="width:100%;font-size:12px">`
+      : `<span>${x.proveedor}</span>`;
+
+    let celdaSec = activa
+      ? `<select class="celda-edit" onchange="editarCampoInline(${idx},'seccion',this.value)" style="width:100%;font-size:12px">
+           ${secciones.map(s=>`<option ${x.seccion===s.toUpperCase()||x.seccion===s?'selected':''}>${s}</option>`).join('')}
+         </select>`
+      : `<span>${x.seccion}</span>`;
+
+    let celdaComp = activa
+      ? `<input class="celda-edit" value="${x.comprador}" onchange="editarCampoInline(${idx},'comprador',this.value)" style="width:100%;font-size:12px">`
+      : `<span>${x.comprador}</span>`;
+
+    tb.innerHTML += `
+      <tr class="${sinPrecio ? 'sin-precio' : ''}">
+        <td>${x.nombre}</td>
+        <td class="center">${x.cant}</td>
+        <td class="center">${x.unidad}</td>
+        <td class="monto">${celdaPrecio}</td>
+        <td>${celdaProv}</td>
+        <td>${celdaSec}</td>
+        <td>${celdaComp}</td>
+        <td>${formatFecha(x.fecha)}</td>
+        <td class="center no-print">
+          <div class="td-acciones">
+            <button class="btn-edit" onclick="solicitarEdicion(${idx})">✏️</button>
+            <button class="btn-danger" style="padding:5px 8px;font-size:12px;border-radius:6px;" onclick="solicitarEliminar(${idx})">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+  });
+
+  actualizarTotalPie(totalGeneral);
+}
+
+function actualizarTotalPie(total){
+  document.getElementById("totalPie").textContent = formatPeso(total);
+}
+
+function editarPrecioInline(idx, valor){
+  if(valor === "" || valor === null) return;
+  historial[idx].precio = Number(valor);
+  guardarStorage(); render(); calcularResumen();
+  showToast("💰 Precio guardado");
+}
+
+function editarCampoInline(idx, campo, valor){
+  if(!valor || valor.trim() === "") return;
+  historial[idx][campo] = valor.trim().toUpperCase();
+  guardarStorage(); calcularResumen();
+  showToast("✅ Campo actualizado");
+}
+
+/* =====================================================
+ELIMINAR con sesión
+===================================================== */
+function solicitarEliminar(idx){
+  pendienteIdx = idx;
+  if(sesionEstaActiva()){ ejecutarEliminar(); return; }
+  pedirClave("eliminar");
+}
+
+function ejecutarEliminar(){
+  if(pendienteIdx === null) return;
+  if(!confirm("¿Eliminar este registro?")){ pendienteIdx=null; return; }
+  historial.splice(pendienteIdx, 1);
+  pendienteIdx = null;
+  guardarStorage(); filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  showToast("🗑️ Registro eliminado");
+}
+
+/* =====================================================
+EDITAR con sesión
+===================================================== */
+function solicitarEdicion(idx){
+  pendienteIdx = idx;
+  if(sesionEstaActiva()){ ejecutarEdicion(); return; }
+  pedirClave("editar");
+}
+
+function ejecutarEdicion(){
+  if(pendienteIdx === null) return;
+  cargarEnModal(pendienteIdx);
+  actualizarNavegacion();
+  document.getElementById("modalOverlay").classList.add("activo");
+}
+
+function cargarEnModal(idx){
+  let x = historial[idx];
+  document.getElementById("editIndex").value     = idx;
+  document.getElementById("editNombre").value    = x.nombre;
+  document.getElementById("editCant").value      = x.cant;
+  document.getElementById("editUnidad").value    = x.unidad;
+  document.getElementById("editPrecio").value    = x.precio || "";
+  document.getElementById("editProveedor").value = x.proveedor === "-" ? "" : x.proveedor;
+  document.getElementById("editSeccion").value   = x.seccion;
+  document.getElementById("editComprador").value = x.comprador === "-" ? "" : x.comprador;
+  document.getElementById("editFecha").value     = x.fecha;
+}
+
+function actualizarNavegacion(){
+  let idx   = Number(document.getElementById("editIndex").value);
+  let total = historial.length;
+  document.getElementById("editContador").textContent = `${idx + 1} de ${total}`;
+  document.getElementById("btnEditAnterior").disabled  = idx <= 0;
+  document.getElementById("btnEditSiguiente").disabled = idx >= total - 1;
+}
+
+function navegarEdicion(direccion){
+  // Guarda cambios actuales antes de navegar
+  guardarEdicion(false); // false = no cerrar modal
+  let idx = Number(document.getElementById("editIndex").value);
+  let nuevo = idx + direccion;
+  if(nuevo < 0 || nuevo >= historial.length) return;
+  pendienteIdx = nuevo;
+  cargarEnModal(nuevo);
+  actualizarNavegacion();
+}
+
+function cerrarModal(){
+  document.getElementById("modalOverlay").classList.remove("activo");
+  pendienteIdx = null;
+}
+
+function guardarEdicion(cerrar = true){
+  let idx = Number(document.getElementById("editIndex").value);
+  historial[idx] = {
+    nombre:    document.getElementById("editNombre").value.trim().toUpperCase(),
+    cant:      Number(document.getElementById("editCant").value),
+    unidad:    document.getElementById("editUnidad").value.toUpperCase(),
+    precio:    Number(document.getElementById("editPrecio").value),
+    proveedor: (document.getElementById("editProveedor").value.trim().toUpperCase()) || "-",
+    seccion:   document.getElementById("editSeccion").value.toUpperCase(),
+    comprador: (document.getElementById("editComprador").value.trim().toUpperCase()) || "-",
+    fecha:     document.getElementById("editFecha").value
+  };
+  guardarStorage();
+  historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+  filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  if(cerrar){
+    cerrarModal();
+    showToast("✅ Registro actualizado");
+  } else {
+    showToast("💾 Guardado — continúa editando");
+  }
+}
+
+// Botón "Guardar y continuar" — guarda y avanza al siguiente si existe, si no cierra
+function guardarEdicionYNavegar(){
+  let idx   = Number(document.getElementById("editIndex").value);
+  let total = historial.length;
+  if(idx < total - 1){
+    // Hay más registros → guarda y avanza
+    navegarEdicion(1);
+  } else {
+    // Último registro → guarda y cierra
+    guardarEdicion(true);
+  }
+}
+
+document.getElementById("modalOverlay").addEventListener("click",function(e){ if(e.target===this) cerrarModal(); });
+
+/* =====================================================
+LIMPIAR TODO con clave
+===================================================== */
+function limpiarTodo(){
+  if(sesionEstaActiva()){ ejecutarLimpiar(); return; }
+  pedirClave("limpiar");
+}
+
+function ejecutarLimpiar(){
+  if(!confirm("¿Eliminar TODOS los registros? No se puede deshacer.")) return;
+  historial=[]; guardarStorage(); filtrar(); calcularResumen(); actualizarFiltroProveedores();
+  showToast("🗑️ Historial limpiado");
+}
+
+/* =====================================================
+IMPRIMIR — agrupado por sección con checklist ✅
+===================================================== */
+function imprimirHistorial(){
+  let badge = document.getElementById("labelPeriodo")
+    ? document.getElementById("labelPeriodo").textContent.trim()
+    : "Todos los registros";
+
+  let ahora = new Date();
+  let fechaImpresion = ahora.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}) +
+                       " · " + ahora.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',hour12:false}) + " hrs";
+
+  // Obtener datos filtrados actualmente visibles
+  let datosFiltrados = getFiltrados();
+  let txt  = document.getElementById("buscador").value.toLowerCase().trim();
+  let prov = document.getElementById("filtroProv").value.toLowerCase();
+  if(txt || prov){
+    datosFiltrados = datosFiltrados.filter(x=>{
+      let mt = !txt||(x.nombre.toLowerCase().includes(txt)||x.proveedor.toLowerCase().includes(txt)||x.seccion.toLowerCase().includes(txt)||x.comprador.toLowerCase().includes(txt));
+      let mp = !prov||x.proveedor.toLowerCase()===prov;
+      return mt && mp;
+    });
+  }
+
+  if(datosFiltrados.length === 0){
+    showToast("⚠️ No hay datos para imprimir","error"); return;
+  }
+
+  // Agrupar por sección
+  const ORDEN_SECCIONES = ["ADMINISTRACIÓN","BODEGA","COCINA","PANADERÍA","PASTELERÍA","SALA DE VENTAS"];
+  let grupos = {};
+  datosFiltrados.forEach(x=>{
+    let sec = (x.seccion || "OTROS").toUpperCase();
+    if(!grupos[sec]) grupos[sec] = [];
+    grupos[sec].push(x);
+  });
+
+  // Ordenar secciones según orden definido, las demás al final
+  let seccionesOrdenadas = [
+    ...ORDEN_SECCIONES.filter(s => grupos[s]),
+    ...Object.keys(grupos).filter(s => !ORDEN_SECCIONES.includes(s))
+  ];
+
+  // Generar HTML de cada sección
+  let totalGeneral = 0;
+  let htmlSecciones = seccionesOrdenadas.map(sec => {
+    let items    = grupos[sec].slice().sort((a,b)=> a.nombre.localeCompare(b.nombre));
+    let subtotal = items.reduce((a,b)=>a+Number(b.precio),0);
+    totalGeneral += subtotal;
+
+    let filas = items.map((x,i)=>{
+      let precio = Number(x.precio) === 0
+        ? '<span style="font-size:9px;color:#92400e;border:1px dashed #ca8a04;border-radius:3px;padding:1px 4px;">$ pendiente</span>'
+        : formatPeso(Number(x.precio));
+      let bg = i%2===1 ? 'background:#f9fafb;' : '';
+      return `<tr style="${bg}">
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${capitalizar(x.nombre)}</td>
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;text-align:center;">${x.cant}</td>
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;text-align:center;">${x.unidad}</td>
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;">${precio}</td>
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${capitalizar(x.proveedor === '-' ? '-' : x.proveedor)}</td>
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;font-size:10px;">${formatFecha(x.fecha)}</td>
+        <td style="padding:5px 8px;border-bottom:0.5px solid #e5e7eb;text-align:center;">
+          <span style="width:13px;height:13px;border:1.5px solid #374151;border-radius:2px;display:inline-block;"></span>
+        </td>
+      </tr>`;
+    }).join("");
+
+    let subtotalFmt = subtotal > 0 ? formatPeso(subtotal) : '$0';
+    let colgroup = `<colgroup>
+      <col style="width:26%"><col style="width:8%"><col style="width:11%">
+      <col style="width:14%"><col style="width:20%"><col style="width:13%"><col style="width:8%">
+    </colgroup>`;
+    let thead = `<thead><tr style="background:#2563eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+      <th style="padding:5px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;color:white;">Producto</th>
+      <th style="padding:5px 8px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;color:white;">Cant.</th>
+      <th style="padding:5px 8px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;color:white;">Unidad</th>
+      <th style="padding:5px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;color:white;">Precio $</th>
+      <th style="padding:5px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;color:white;">Proveedor</th>
+      <th style="padding:5px 8px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;color:white;">Fecha</th>
+      <th style="padding:5px 8px;text-align:center;font-size:9px;font-weight:700;color:white;">✓</th>
+    </tr></thead>`;
+
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="background:#1e3a5f;color:white;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:4px 4px 0 0;display:flex;justify-content:space-between;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+          <span>📁 ${capitalizar(sec)} <span style="font-size:8px;color:#93c5fd;font-weight:400;">A→Z</span></span>
+          <span style="color:#93c5fd;">Subtotal: ${subtotalFmt}</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+          ${colgroup}
+          ${thead}
+          <tbody>${filas}</tbody>
+        </table>
+      </div>`;
+  }).join("");
+
+  let contenido = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title> </title>
+<style>
+  @page { margin:12mm 10mm 14mm 10mm; @top-left{content:none} @top-center{content:none} @top-right{content:none} @bottom-left{content:none} @bottom-center{content:none} @bottom-right{content:none} }
+  body { font-family:Arial,sans-serif; font-size:11px; color:#000; margin:0; padding:0; }
+  #aviso { background:#fef9c3; border:1px solid #ca8a04; border-radius:6px; padding:8px 12px; margin-bottom:14px; font-size:11px; color:#713f12; }
+  @media print { #aviso { display:none !important; } }
+</style>
+</head>
+<body>
+  <div id="aviso">⚠️ Para eliminar fecha/título: en el diálogo de impresión → <b>Más configuración</b> → desactiva <b>"Encabezados y pies de página"</b>.</div>
+  <div style="text-align:center;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">RESUMEN DE COMPRAS</div>
+  <div style="text-align:center;font-size:10px;color:#555;margin-bottom:16px;">Período: ${badge} &nbsp;·&nbsp; ${fechaImpresion}</div>
+  ${htmlSecciones}
+  <div style="background:#2563eb;color:white;padding:8px 10px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+    <span>TOTAL GENERAL</span>
+    <span>${formatPeso(totalGeneral)}</span>
+  </div>
+  <div style="text-align:right;font-size:9px;color:#999;margin-top:8px;">Módulo Compras · Sistema de Gestión</div>
+  <script>window.onload=()=>{ window.print(); window.onafterprint=()=>window.close(); }<\/script>
+</body>
+</html>`;
+
+  let ventana = window.open("","_blank","width=900,height=700");
+  ventana.document.write(contenido);
+  ventana.document.close();
+}
+
+/* SEMANA ISO */
+function getNumSemana(fecha){
+  let d=new Date(fecha+"T12:00:00");
+  d.setDate(d.getDate()+3-(d.getDay()+6)%7);
+  let w1=new Date(d.getFullYear(),0,4);
+  return [d.getFullYear(), 1+Math.round(((d-w1)/86400000-3+(w1.getDay()+6)%7)/7)];
+}
+
+/* RESUMEN + SECCIÓN ✅ */
+function getFiltrados(){
+  let anio=document.getElementById("anioFiltro").value;
+  let mes=document.getElementById("mesFiltro").value;
+  let semana=document.getElementById("semanaFiltro").value;
+  let dia=document.getElementById("diaFiltro").value;
+  return historial.filter(x=>{
+    let f=new Date(x.fecha+"T12:00:00");
+    if(anio && f.getFullYear()!=anio) return false;
+    if(mes && !x.fecha.startsWith(mes)) return false;
+    if(semana){
+      let [as,ns]=semana.split("-W").map(Number);
+      let [ar,nr]=getNumSemana(x.fecha);
+      if(ar!==as||nr!==ns) return false;
+    }
+    if(dia && x.fecha!==dia) return false;
+    return true;
+  });
+}
+
+function calcularResumen(){
+  let filtrados = getFiltrados();
+
+  // Total Productos = número de filas (productos distintos en historial)
+  let totalU = filtrados.length;
+
+  let totalD = filtrados.reduce((a,b)=>a+Number(b.precio), 0);
+  let conteo = {};
+  filtrados.forEach(x=>{ conteo[x.nombre]=(conteo[x.nombre]||0)+Number(x.cant); });
+  let top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0];
+
+  // Total Productos — clickeable para ver lista
+  let spanU = document.getElementById("totalProductos");
+  spanU.textContent = totalU;
+  spanU.style.cursor = "pointer";
+  spanU.title = "Clic para ver lista de productos";
+  spanU.onclick = ()=> mostrarListaProductos(filtrados);
+
+  document.getElementById("totalDinero").textContent = formatPeso(totalD);
+  document.getElementById("topProducto").textContent = top ? top[0] : "-";
+
+  // Resumen por sección — comparación sin importar mayúsculas/minúsculas
+  const secciones = ["Administración","Bodega","Cocina","Panadería","Pastelería","Sala de ventas"];
+  let gastos = {};
+  secciones.forEach(s => gastos[s.toUpperCase()] = 0);
+  filtrados.forEach(x=>{
+    let secUp = (x.seccion || "").toUpperCase();
+    if(gastos[secUp] !== undefined) gastos[secUp] += Number(x.precio);
+  });
+  document.getElementById("seccionGrid").innerHTML = secciones.map(s=>`
+    <div class="seccion-card">
+      <div class="sec-nombre">${s}</div>
+      <div class="sec-monto">${formatPeso(gastos[s.toUpperCase()])}</div>
+    </div>`).join("");
+
+  filtrar();
+}
+
+/* Modal lista de productos */
+function mostrarListaProductos(filtrados){
+  // Obtener nombres únicos ordenados alfabéticamente
+  let nombres = [...new Set(filtrados.map(x=> x.nombre))].sort();
+  if(nombres.length === 0){ showToast("Sin productos en este período","error"); return; }
+
+  let overlay = document.getElementById("modalProductosOverlay");
+  document.getElementById("modalProductosLista").innerHTML = nombres.map((n,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);">
+      <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:20px;">${i+1}</span>
+      <span style="font-size:13px;color:var(--text);">${capitalizar(n)}</span>
+    </div>`).join("");
+  document.getElementById("modalProductosTitulo").textContent = `${nombres.length} productos`;
+  overlay.classList.add("activo");
+}
+
+/* BUSCADOR + FILTRO PROVEEDOR — combinado con filtro de período ✅ */
+function filtrar(){
+  let txt  = document.getElementById("buscador").value.toLowerCase().trim();
+  let prov = document.getElementById("filtroProv").value.toLowerCase();
+
+  // Partir desde los registros ya filtrados por período (resumen)
+  let base = getFiltrados();
+
+  // Aplicar además buscador y proveedor
+  let resultado = base.filter(x=>{
+    let mt = !txt||(
+      x.nombre.toLowerCase().includes(txt)||
+      x.proveedor.toLowerCase().includes(txt)||
+      x.seccion.toLowerCase().includes(txt)||
+      x.comprador.toLowerCase().includes(txt)
+    );
+    let mp = !prov || x.proveedor.toLowerCase()===prov;
+    return mt && mp;
+  });
+
+  render(resultado);
+}
+
+/* EXPORTAR EXCEL — usa los mismos datos filtrados que la tabla ✅ */
+function exportarExcel(){
+  // Usar los mismos datos que están visibles en la tabla (filtro período + buscador)
+  let datos_export = getFiltrados();
+
+  // Aplicar también filtro de buscador y proveedor si están activos
+  let txt  = document.getElementById("buscador").value.toLowerCase().trim();
+  let prov = document.getElementById("filtroProv").value.toLowerCase();
+  if(txt || prov){
+    datos_export = datos_export.filter(x=>{
+      let mt = !txt||(x.nombre.toLowerCase().includes(txt)||x.proveedor.toLowerCase().includes(txt)||x.seccion.toLowerCase().includes(txt)||x.comprador.toLowerCase().includes(txt));
+      let mp = !prov || x.proveedor.toLowerCase()===prov;
+      return mt && mp;
+    });
+  }
+
+  if(datos_export.length===0){ showToast("⚠️ No hay datos para exportar","error"); return; }
+
+  // Encabezados iguales a la tabla
+  let filas = [["PRODUCTO","CANT.","UNIDAD","PRECIO $","PROVEEDOR","SECCIÓN","COMPRADOR","FECHA"]];
+
+  datos_export.forEach(x=>{
+    filas.push([
+      x.nombre,
+      Number(x.cant),
+      x.unidad,
+      Number(x.precio),
+      x.proveedor,
+      x.seccion,
+      x.comprador,
+      formatFecha(x.fecha)   // formato DD/MM/AAAA igual que la tabla
+    ]);
+  });
+
+  // Fila de total — el monto va en columna D (índice 3 = PRECIO $)
+  let totalGeneral = datos_export.reduce((a,b)=>a+Number(b.precio),0);
+  filas.push(["TOTAL GENERAL","","",totalGeneral,"","","",""]);
+
+  let wb = XLSX.utils.book_new();
+  let ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:24},{wch:8},{wch:10},{wch:14},{wch:18},{wch:16},{wch:16},{wch:13}];
+
+  // Estilo de encabezado (negrita en fila 1)
+  let rango = XLSX.utils.decode_range(ws["!ref"]);
+  for(let C = rango.s.c; C <= rango.e.c; C++){
+    let cell = ws[XLSX.utils.encode_cell({r:0, c:C})];
+    if(cell) cell.s = { font:{ bold:true } };
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, "Compras");
+  let hoy = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `historial_compras_${hoy}.xlsx`);
+  showToast(`📊 Excel exportado — ${datos_export.length} registros`);
+}
+
+/* =====================================================
+BACKUP — exportar e importar datos JSON
+===================================================== */
+function exportarBackup(){
+  if(historial.length === 0){ showToast("⚠️ No hay datos para exportar","error"); return; }
+  let backup = {
+    version: "compras_v3",
+    fecha: new Date().toISOString(),
+    registros: historial
+  };
+  let blob = new Blob([JSON.stringify(backup, null, 2)], { type:"application/json" });
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `backup_compras_${new Date().toISOString().slice(0,10)}.json`;
+  link.click();
+  showToast(`💾 Backup guardado — ${historial.length} registros`);
+}
+
+function importarBackup(input){
+  let file = input.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      let data = JSON.parse(e.target.result);
+      let registros = data.registros || data; // soporta formato nuevo y array directo
+      if(!Array.isArray(registros) || registros.length === 0){
+        showToast("⚠️ Archivo sin datos válidos","error"); return;
+      }
+      if(!confirm(`¿Importar ${registros.length} registros? Los datos actuales se reemplazarán.`)) return;
+      historial = registros;
+      historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+      guardarStorage();
+      filtrar(); calcularResumen(); actualizarFiltroProveedores();
+      showToast(`✅ ${registros.length} registros importados correctamente`);
+    } catch(err){
+      showToast("❌ Error al leer el archivo","error");
+    }
+    input.value = ""; // resetear input
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById("modalProductosOverlay").addEventListener("click",function(e){
+  if(e.target===this) this.classList.remove("activo");
+});
+
+filtrar(); calcularResumen(); actualizarFiltroProveedores();
+</script>
+</body>
+</html>
