@@ -2611,18 +2611,23 @@ async function cargarClima(){
   try{
     const url = "https://api.open-meteo.com/v1/forecast"
       + "?latitude=-53.16&longitude=-70.91"
-      + "&current=temperature_2m,apparent_temperature,precipitation,weathercode,windspeed_10m,snowfall,uv_index,is_day"
+      + "&current_weather=true"
+      + "&hourly=precipitation,uv_index,snowfall,apparent_temperature"
       + "&daily=sunrise,sunset,moonrise,moonset"
-      + "&timezone=America/Punta_Arenas&forecast_days=1";
+      + "&timezone=America%2FPunta_Arenas&forecast_days=1";
     let r    = await fetch(url);
+    if(!r.ok) throw new Error('API error');
     let data = await r.json();
-    let cw   = data.current;
-    let prec    = cw.precipitation   ?? 0;
-    let uv      = cw.uv_index        ?? 0;
-    let nieve   = cw.snowfall        ?? 0;
-    let sens    = cw.apparent_temperature ?? cw.temperature_2m;
-    let temp    = cw.temperature_2m;
-    let viento  = cw.windspeed_10m;
+    let cw   = data.current_weather;
+    let hora = cw.time.slice(11,13);
+    let idx  = data.hourly.time.findIndex(t => t.slice(11,13) === hora);
+    if(idx < 0) idx = 0;
+    let prec    = data.hourly.precipitation[idx]        ?? 0;
+    let uv      = data.hourly.uv_index[idx]             ?? 0;
+    let nieve   = data.hourly.snowfall[idx]             ?? 0;
+    let sens    = data.hourly.apparent_temperature[idx] ?? cw.temperature;
+    let temp    = cw.temperature;
+    let viento  = cw.windspeed;
     let codigo  = cw.weathercode;
     let esNoche = cw.is_day === 0;
     let escarcha = temp < 2 && prec === 0;
@@ -2642,8 +2647,6 @@ async function cargarClima(){
     s('idx-sunset',   data.daily.sunset[0].slice(11,16));
     s('idx-moonrise', data.daily.moonrise[0] ? data.daily.moonrise[0].slice(11,16) : '--:--');
     s('idx-moonset',  data.daily.moonset[0]  ? data.daily.moonset[0].slice(11,16)  : '--:--');
-
-    // Fase lunar calculada
     function getFaseLunar(){
       let now = new Date();
       let lunaRef = new Date(2000,0,6,18,14,0);
