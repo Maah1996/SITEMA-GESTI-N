@@ -2726,7 +2726,7 @@ async function cargarClima(){
     if(alertEl){ alertEl.style.display=alertas.length>0?'block':'none'; if(alertas.length>0) alertEl.textContent=alertas.join(' · '); }
 
     // ── PREVISIONES ──────────────────────────────────────
-    let hora = new Date().getHours();
+    let hora = parseInt(new Date().toLocaleTimeString('es-CL',{hour:'2-digit',hour12:false,timeZone:'America/Punta_Arenas'}));
     let periodo = hora < 12 ? 'manana' : hora < 19 ? 'tarde' : 'noche';
 
     let tituloHoy = document.getElementById('prev-hoy-titulo');
@@ -2738,9 +2738,9 @@ async function cargarClima(){
 
     // Filtrar items de hoy y mañana
     let ahora = new Date();
-    let fechaHoy = ahora.toISOString().slice(0,10);
-    let mananaDate = new Date(ahora); mananaDate.setDate(ahora.getDate()+1);
-    let fechaMan = mananaDate.toISOString().slice(0,10);
+    let fechaHoy = new Date().toLocaleDateString('es-CL',{timeZone:'America/Punta_Arenas',year:'numeric',month:'2-digit',day:'2-digit'}).split('-').reverse().join('-');
+    let mananaDate = new Date(); mananaDate.setDate(mananaDate.getDate()+1);
+    let fechaMan = mananaDate.toLocaleDateString('es-CL',{timeZone:'America/Punta_Arenas',year:'numeric',month:'2-digit',day:'2-digit'}).split('-').reverse().join('-');
 
     let itemsHoy = data.list.filter(x => x.dt_txt.startsWith(fechaHoy));
     let itemsMan = data.list.filter(x => x.dt_txt.startsWith(fechaMan));
