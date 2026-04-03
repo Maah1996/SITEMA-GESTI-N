@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="WebMonti">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="file:///C:/Users/gladi/Downloads/icon.svg" type="image/svg+xml">
-<script src="./WebMonti — Sistema de Gestión_files/xlsx.full.min.js.descarga"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="./WebMonti — Sistema de Gestión_files/css2" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -403,7 +403,7 @@ h3 { font-size:15px; font-weight:600; margin-bottom:12px; color:var(--text); }
 
 /* LAYOUT INFERIOR — columna izq alineada con Fecha y Clima del header (1fr de 3.4fr) */
 .layout-inferior { display:grid; grid-template-columns:minmax(200px,1fr) minmax(0,2.4fr); gap:12px; align-items:start; }
-@media(max-width:900px){ .layout-inferior{grid-template-columns:1fr;} }
+@media(max-width:1024px){ .layout-inferior{grid-template-columns:1fr;} }
 .col-izq { display:flex; flex-direction:column; gap:0; min-width:0; overflow:hidden; }
 .col-der { display:flex; flex-direction:column; }
 .box-header { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; font-size:13px; }
@@ -479,11 +479,24 @@ input:focus, select:focus { outline:none; border-color:var(--blue); background:v
 .info-producto { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; margin-bottom:14px; }
 @media(max-width:600px){ .info-producto{grid-template-columns:1fr;} }
 
-/* FILAS (sin precio) */
-.fila-producto { display:grid; grid-template-columns:minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px; gap:4px; margin-bottom:8px; align-items:center; min-width:0; overflow:hidden; }
-.col-headers   { display:grid; grid-template-columns:minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px; gap:4px; margin-bottom:4px; padding:0 2px; min-width:0; }
+/* FILAS DE PRODUCTO — flex wrap para adaptarse a cualquier ancho */
+.fila-producto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+  min-width: 0;
+}
+.fila-producto input[placeholder="Nombre producto"] { flex: 3; min-width: 120px; }
+.fila-producto input[type="number"] { flex: 1; min-width: 60px; max-width: 80px; }
+.fila-producto select { flex: 1; min-width: 90px; }
+.fila-producto input[placeholder="Proveedor"] { flex: 2; min-width: 100px; }
+.fila-producto .btn-del-row { flex-shrink: 0; width: 32px !important; }
+
+.col-headers { display:grid; grid-template-columns:minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px; gap:4px; margin-bottom:4px; padding:0 2px; min-width:0; }
 .col-headers.sin-prov { grid-template-columns:minmax(80px,1.8fr) minmax(40px,55px) minmax(70px,90px) 32px; }
-@media(max-width:700px){ .fila-producto,.col-headers{grid-template-columns:1fr 1fr; gap:6px;} .col-headers{display:none;} }
+@media(max-width:700px){ .col-headers{display:none;} }
 
 /* BOTONES */
 .btn { padding:9px 16px; border:none; border-radius:var(--radius-sm); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; }
@@ -497,7 +510,7 @@ input:focus, select:focus { outline:none; border-color:var(--blue); background:v
 .btn-danger:hover { background:var(--red); color:white; }
 .btn-edit { background:var(--orange-light); color:var(--orange); padding:5px 8px; font-size:12px; font-weight:600; border:none; border-radius:6px; cursor:pointer; transition:all 0.15s; }
 .btn-edit:hover { background:var(--orange); color:white; }
-.btn-del-row { background:var(--red-light); color:var(--red); border:none; border-radius:6px; padding:6px 8px; cursor:pointer; font-size:14px; transition:all 0.15s; width:100%; }
+.btn-del-row { background:var(--red-light); color:var(--red); border:none; border-radius:6px; padding:6px 8px; cursor:pointer; font-size:14px; transition:all 0.15s; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .btn-del-row:hover { background:var(--red); color:white; }
 .acciones-form { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
 
@@ -694,7 +707,7 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
   }
   .fila-producto input, .fila-producto select { width: 100% !important; font-size: 15px !important; padding: 10px !important; }
   .col-headers { display: none !important; }
-  .btn-del-row { width: 100% !important; padding: 10px !important; }
+  .btn-del-row { width: 100% !important; height: 40px !important; padding: 10px !important; }
 
   /* Botones Agregar fila / Enviar compra */
   .acciones-form { flex-direction: column !important; gap: 8px !important; margin-top: 10px !important; }
@@ -749,6 +762,19 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
   .accesos-grid { grid-template-columns: 1fr 1fr !important; }
   .info-producto { grid-template-columns: 1fr 1fr !important; }
   .tabla-wrap { overflow-x: auto !important; }
+}
+
+/* Pantalla mediana — apila formulario y tabla */
+@media(min-width:601px) and (max-width:1024px){
+  .layout-inferior { grid-template-columns: 1fr !important; }
+  .fila-producto {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  .fila-producto input, .fila-producto select { flex: 1 !important; min-width: 120px !important; }
+  .btn-del-row { width: 32px !important; flex-shrink: 0 !important; }
+  .info-producto { grid-template-columns: 1fr 1fr !important; }
 }
 
 @media print {
@@ -1243,6 +1269,34 @@ FILA INFERIOR: 2 columnas
       </div>
     </div>
 
+    <!-- PANEL LINKS PROGRAMADOR — solo visible tras autenticarse -->
+    <div id="panel-prog-links" style="display:none; margin:12px 0 0 0; padding:14px 16px; background:#0f172a; border-radius:10px; border:1px solid #312e81;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#475569;margin-bottom:10px;">🔗 Accesos rápidos — Programador</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="https://github.com/Maah1996/SITEMA-GESTI-N" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1e293b;border:1px solid #312e81;border-radius:8px;text-decoration:none;transition:0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#312e81'">
+          <span style="font-size:18px;">🐙</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#f1f5f9;">GitHub — Repositorio</div>
+            <div style="font-size:11px;color:#475569;">Maah1996/SITEMA-GESTI-N</div>
+          </div>
+        </a>
+        <a href="https://console.firebase.google.com/u/1/?pli=1" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1e293b;border:1px solid #312e81;border-radius:8px;text-decoration:none;transition:0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#312e81'">
+          <span style="font-size:18px;">🔥</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#f1f5f9;">Firebase — Firestore</div>
+            <div style="font-size:11px;color:#475569;">webmonti - Base de datos - Datos</div>
+          </div>
+        </a>
+        <a href="https://app.netlify.com/teams/maah1996/sites" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1e293b;border:1px solid #312e81;border-radius:8px;text-decoration:none;transition:0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#312e81'">
+          <span style="font-size:18px;">🚀</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#f1f5f9;">maah1996 | Netlify</div>
+            <div style="font-size:11px;color:#475569;">app.netlify.com</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
   </div><!-- fin col-izq -->
 
   <!-- COLUMNA DERECHA: HISTORIAL -->
@@ -1270,6 +1324,7 @@ FILA INFERIOR: 2 columnas
         </label>
         <button class="btn btn-danger" onclick="pedirClave(&#39;limpiar&#39;)">🗑️</button>
       </div>
+
       <div class="tabla-wrap">
         <table id="tabla">
           <thead>
@@ -1725,13 +1780,7 @@ if(document.getElementById("anioFiltro")) document.getElementById("anioFiltro").
 function agregarFila(){
   let d = document.createElement("div");
   let esSec = (ROL === 'seccion');
-  let isMobile = window.innerWidth <= 600;
   d.className = "fila-producto";
-  if(!isMobile){
-    d.style.gridTemplateColumns = esSec
-      ? 'minmax(80px,1.8fr) minmax(40px,55px) minmax(70px,90px) 32px'
-      : 'minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px';
-  }
   d.innerHTML = `
     <input placeholder="Nombre producto">
     <input type="number" placeholder="0" min="0">
@@ -1741,7 +1790,7 @@ function agregarFila(){
       <option>Cajas</option><option>Sacos</option>
     </select>
     ${esSec ? '' : '<input placeholder="Proveedor">'}
-    <button class="btn-del-row" onclick="this.parentElement.remove()" title="Quitar">✕ Quitar</button>`;
+    <button class="btn-del-row" onclick="this.parentElement.remove()" title="Quitar">✕</button>`;
   document.getElementById("productos").appendChild(d);
 }
 agregarFila();
@@ -3194,6 +3243,8 @@ function aplicarRolVista(){
   if(timerEl)     timerEl.style.display     = (ROL === 'admin' && sesionEstaActiva()) ? 'flex' : 'none';
   if(btnBackup)   btnBackup.style.display   = ROL === 'programador' ? '' : 'none';
   if(btnImportar) btnImportar.style.display = ROL === 'programador' ? '' : 'none';
+  let panelProgLinks = document.getElementById('panel-prog-links');
+  if(panelProgLinks) panelProgLinks.style.display = ROL === 'programador' ? 'block' : 'none';
 
   // Columnas Precio y Proveedor en tabla — ocultas para secciones
   let ths = document.querySelectorAll('#tabla thead th');
