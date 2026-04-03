@@ -1,9 +1,10 @@
-const CACHE = 'webmonti-v2';
+const CACHE = 'webmonti-v3';
+const BASE = '/SITEMA-GESTI-N';
 const ARCHIVOS = [
-  './index.html',
-  './Módulo Compras.html',
-  './manifest.json',
-  './icon.svg'
+  BASE + '/index.html',
+  BASE + '/inventario.html',
+  BASE + '/manifest.json',
+  BASE + '/icon.svg'
 ];
 
 self.addEventListener('install', e => {

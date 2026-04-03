@@ -1,16 +1,21 @@
 {
   "name": "WebMonti — Sistema de Gestión",
   "short_name": "WebMonti",
-  "description": "Sistema de gestión de compras WebMonti",
-  "start_url": "./index.html",
+  "description": "Sistema de gestión de compras e inventario WebMonti",
+  "start_url": "/SITEMA-GESTI-N/index.html",
+  "scope": "/SITEMA-GESTI-N/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#0d9488",
   "icons": [
     {
       "src": "icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "es-CL"
 }
