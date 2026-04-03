@@ -1272,6 +1272,14 @@ FILA INFERIOR: 2 columnas
     <!-- PANEL LINKS PROGRAMADOR — solo visible tras autenticarse -->
     <div id="panel-prog-links" style="display:none; margin:12px 0 0 0; padding:14px 16px; background:#0f172a; border-radius:10px; border:1px solid #312e81;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#475569;margin-bottom:10px;">🔗 Accesos rápidos — Programador</div>
+
+      <!-- CLAVE DIARIA PROGRAMADOR -->
+      <div style="background:#1e293b;border:1px solid #312e81;border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#475569;margin-bottom:8px;">🔑 Clave diaria de secciones</div>
+        <div id="prog-clave-dia" style="font-size:32px;font-weight:700;letter-spacing:10px;color:#6366f1;font-family:'DM Mono',monospace;text-align:center;padding:8px;background:#0f172a;border-radius:6px;">----</div>
+        <div style="font-size:11px;color:#475569;text-align:center;margin-top:6px;">Expira a medianoche</div>
+      </div>
+
       <div style="display:flex;flex-direction:column;gap:8px;">
         <a href="https://github.com/Maah1996/SITEMA-GESTI-N" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1e293b;border:1px solid #312e81;border-radius:8px;text-decoration:none;transition:0.15s;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#312e81'">
           <span style="font-size:18px;">🐙</span>
@@ -1295,6 +1303,13 @@ FILA INFERIOR: 2 columnas
           </div>
         </a>
       </div>
+    </div>
+
+    <!-- PANEL CLAVE DIARIA ADMIN — solo visible cuando ROL es admin -->
+    <div id="panel-admin-clave" style="display:none; margin:12px 0 0 0; padding:14px 16px; background:var(--surface); border-radius:10px; border:1px solid var(--blue);">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);margin-bottom:10px;">🔑 Clave diaria de secciones</div>
+      <div id="admin-clave-dia" style="font-size:32px;font-weight:700;letter-spacing:10px;color:var(--blue);font-family:'DM Mono',monospace;text-align:center;padding:10px;background:var(--blue-light);border-radius:8px;">----</div>
+      <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:6px;">Expira a medianoche · Entrégala al personal</div>
     </div>
 
   </div><!-- fin col-izq -->
@@ -1432,9 +1447,9 @@ FILA INFERIOR: 2 columnas
           <option>CAJAS</option><option>SACOS</option>
         </select>
       </div>
-      <div class="campo"><label>Precio $</label><input type="number" id="editPrecio"></div>
-      <div class="campo"><label>Proveedor</label><input id="editProveedor"></div>
-      <div class="campo"><label>Sección</label>
+      <div class="campo" id="campo-precio"><label>Precio $</label><input type="number" id="editPrecio"></div>
+      <div class="campo" id="campo-proveedor"><label>Proveedor</label><input id="editProveedor"></div>
+      <div class="campo" id="campo-seccion"><label>Sección</label>
         <select id="editSeccion">
           <option value="ADMINISTRACIÓN">Administración</option>
           <option value="BODEGA">Bodega</option>
@@ -1444,8 +1459,8 @@ FILA INFERIOR: 2 columnas
           <option value="SALA DE VENTAS">Sala de ventas</option>
         </select>
       </div>
-      <div class="campo"><label>Comprador</label><input id="editComprador"></div>
-      <div class="campo"><label>Fecha</label><input type="date" id="editFecha"></div>
+      <div class="campo" id="campo-comprador"><label>Comprador</label><input id="editComprador"></div>
+      <div class="campo" id="campo-fecha"><label>Fecha</label><input type="date" id="editFecha"></div>
     </div>
     <div class="modal-acciones">
       <button class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
@@ -2183,7 +2198,7 @@ function render(datos){
         <td class="center no-print">
           <div class="td-acciones">
             <button class="btn-edit" onclick="solicitarEdicion(${idx})">✏️</button>
-            ${ROL === 'admin' ? `<button class="btn-danger" style="padding:5px 8px;font-size:12px;border-radius:6px;" onclick="solicitarEliminar(${idx})">🗑️</button>` : ''}
+            ${(ROL === 'admin' || ROL === 'programador') ? `<button class="btn-danger" style="padding:5px 8px;font-size:12px;border-radius:6px;" onclick="solicitarEliminar(${idx})">🗑️</button>` : ''}
           </div>
         </td>
       </tr>`;
@@ -2215,7 +2230,7 @@ ELIMINAR con sesión
 ===================================================== */
 function solicitarEliminar(idx){
   pendienteIdx = idx;
-  if(sesionEstaActiva()){ ejecutarEliminar(); return; }
+  if(ROL === 'programador' || sesionEstaActiva()){ ejecutarEliminar(); return; }
   pedirClave("eliminar");
 }
 
@@ -2233,6 +2248,18 @@ EDITAR con sesión
 ===================================================== */
 function solicitarEdicion(idx){
   pendienteIdx = idx;
+  if(ROL === 'programador' || ROL === 'admin'){ ejecutarEdicion(); return; }
+  if(ROL === 'seccion'){
+    // Pedir clave diaria
+    let clave = prompt("🔑 Ingresa la clave diaria para editar:");
+    if(clave === null) return;
+    if(clave.trim() === generarClaveDia()){
+      ejecutarEdicion();
+    } else {
+      showToast("❌ Clave incorrecta", "error");
+    }
+    return;
+  }
   if(sesionEstaActiva()){ ejecutarEdicion(); return; }
   pedirClave("editar");
 }
@@ -2241,6 +2268,12 @@ function ejecutarEdicion(){
   if(pendienteIdx === null) return;
   cargarEnModal(pendienteIdx);
   actualizarNavegacion();
+  // Mostrar/ocultar campos según rol
+  let esPrivilegiado = (ROL === 'admin' || ROL === 'programador' || ROL === 'comprador');
+  ['campo-precio','campo-proveedor','campo-seccion','campo-comprador','campo-fecha'].forEach(id => {
+    let el = document.getElementById(id);
+    if(el) el.style.display = esPrivilegiado ? '' : 'none';
+  });
   document.getElementById("modalOverlay").classList.add("activo");
 }
 
@@ -3245,6 +3278,18 @@ function aplicarRolVista(){
   if(btnImportar) btnImportar.style.display = ROL === 'programador' ? '' : 'none';
   let panelProgLinks = document.getElementById('panel-prog-links');
   if(panelProgLinks) panelProgLinks.style.display = ROL === 'programador' ? 'block' : 'none';
+  // Mostrar clave diaria para programador
+  if(ROL === 'programador'){
+    let claveEl = document.getElementById('prog-clave-dia');
+    if(claveEl) claveEl.textContent = generarClaveDia();
+  }
+  // Mostrar clave diaria para admin
+  let panelAdminClave = document.getElementById('panel-admin-clave');
+  if(panelAdminClave) panelAdminClave.style.display = ROL === 'admin' ? 'block' : 'none';
+  if(ROL === 'admin'){
+    let claveAdminEl = document.getElementById('admin-clave-dia');
+    if(claveAdminEl) claveAdminEl.textContent = generarClaveDia();
+  }
 
   // Columnas Precio y Proveedor en tabla — ocultas para secciones
   let ths = document.querySelectorAll('#tabla thead th');
