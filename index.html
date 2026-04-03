@@ -661,44 +661,56 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
   .selector-seccion-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
   #compras-selector { padding: 16px !important; }
 
+  /* Selector rol: 1 columna en móvil */
+  .selector-rol-grid { grid-template-columns: 1fr !important; max-width: 100% !important; gap: 10px !important; }
+  .selector-rol-grid > div { flex-direction: row !important; align-items: center !important; }
+
   /* Selector de compras */
 
   /* Panel compras: padding reducido */
   #compras-wrapper { padding: 0 !important; }
   #compras-wrapper .box { border-radius: 10px !important; padding: 12px !important; }
 
-  /* Formulario de compra: campos apilados */
-  .info-producto { grid-template-columns: 1fr !important; gap: 8px !important; }
+  /* Layout inferior: 1 columna, sin overflow */
+  .layout-inferior { grid-template-columns: 1fr !important; overflow: hidden !important; }
+  .col-izq, .col-der { min-width: 0 !important; width: 100% !important; overflow: hidden !important; }
+  .box { overflow: hidden !important; box-sizing: border-box !important; }
+  #panel-compras { overflow-x: hidden !important; }
 
-  /* Filas de producto en móvil */
+  /* Formulario campos apilados */
+  .info-producto { grid-template-columns: 1fr !important; gap: 8px !important; }
+  #info-producto-grid { grid-template-columns: 1fr !important; }
+
+  /* Filas de producto: tarjetas verticales */
   .fila-producto {
-    grid-template-columns: 1fr 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 6px !important;
-    padding: 8px !important;
+    padding: 10px !important;
     background: var(--surface2) !important;
     border-radius: 8px !important;
     margin-bottom: 10px !important;
     border: 1px solid var(--border) !important;
   }
+  .fila-producto input, .fila-producto select { width: 100% !important; font-size: 15px !important; padding: 10px !important; }
   .col-headers { display: none !important; }
-  .btn-del-row { grid-column: 1 / -1 !important; }
+  .btn-del-row { width: 100% !important; padding: 10px !important; }
 
-  /* Tabla historial: scroll horizontal con tamaño mínimo */
-  .tabla-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
-  table { min-width: 580px !important; font-size: 11px !important; }
+  /* Botones Agregar fila / Enviar compra */
+  .acciones-form { flex-direction: column !important; gap: 8px !important; margin-top: 10px !important; }
+  .acciones-form .btn { width: 100% !important; justify-content: center !important; padding: 14px !important; font-size: 16px !important; box-sizing: border-box !important; }
+  .acciones-form { overflow: hidden !important; }
+
+  /* Tabla header */
+  .tabla-header { flex-direction: column !important; gap: 8px !important; }
+  .tabla-header input { width: 100% !important; font-size: 15px !important; padding: 10px !important; }
+  .tabla-header select { width: 100% !important; flex: none !important; }
+  .tabla-header .btn { width: 100% !important; justify-content: center !important; padding: 10px !important; }
+
+  /* Tabla historial scroll horizontal */
+  .tabla-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; max-width: 100% !important; }
+  table { min-width: 560px !important; font-size: 11px !important; }
   th, td { padding: 7px 8px !important; }
-
-  /* Botones de acción: full width apilados */
-  .acciones-form {
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-  .acciones-form .btn { width: 100% !important; justify-content: center !important; }
-
-  /* Tabla header con búsqueda */
-  .tabla-header { flex-direction: column !important; gap: 6px !important; }
-  .tabla-header input { width: 100% !important; }
-  .tabla-header .btn { width: 100% !important; justify-content: center !important; }
 
   /* Resumen horizontal: 1 columna en móvil muy pequeño */
   .resumen-horizontal { grid-template-columns: 1fr !important; }
@@ -1060,7 +1072,7 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
         </div>
 
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;margin-bottom:12px;">Acceso por rol</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:760px;">
+        <div class="selector-rol-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:760px;">
 
           <div onclick="pedirClaveComprador()" style="background: rgb(255, 255, 255); border: 1px solid rgb(226, 229, 238); border-radius: 12px; padding: 16px 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s;" onmouseover="this.style.borderColor=&#39;#2563eb&#39;" onmouseout="this.style.borderColor=&#39;#e2e5ee&#39;">
             <div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛒</div>
@@ -1712,11 +1724,14 @@ if(document.getElementById("anioFiltro")) document.getElementById("anioFiltro").
 /* AGREGAR FILA — sin precio ✅ */
 function agregarFila(){
   let d = document.createElement("div");
-  d.className = "fila-producto";
   let esSec = (ROL === 'seccion');
-  d.style.gridTemplateColumns = esSec
-    ? 'minmax(80px,1.8fr) minmax(40px,55px) minmax(70px,90px) 32px'
-    : 'minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px';
+  let isMobile = window.innerWidth <= 600;
+  d.className = "fila-producto";
+  if(!isMobile){
+    d.style.gridTemplateColumns = esSec
+      ? 'minmax(80px,1.8fr) minmax(40px,55px) minmax(70px,90px) 32px'
+      : 'minmax(80px,1.4fr) minmax(40px,50px) minmax(60px,80px) minmax(80px,100px) 32px';
+  }
   d.innerHTML = `
     <input placeholder="Nombre producto">
     <input type="number" placeholder="0" min="0">
@@ -1726,7 +1741,7 @@ function agregarFila(){
       <option>Cajas</option><option>Sacos</option>
     </select>
     ${esSec ? '' : '<input placeholder="Proveedor">'}
-    <button class="btn-del-row" onclick="this.parentElement.remove()" title="Quitar">✕</button>`;
+    <button class="btn-del-row" onclick="this.parentElement.remove()" title="Quitar">✕ Quitar</button>`;
   document.getElementById("productos").appendChild(d);
 }
 agregarFila();
