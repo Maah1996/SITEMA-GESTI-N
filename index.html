@@ -1141,7 +1141,7 @@ tfoot tr td.monto { font-family:'DM Mono',monospace; font-size:13px; }
         <span id="lbl-seccion-activa" style="font-size:12px;font-weight:600;color:#64748b;background:#f1f5f9;padding:4px 12px;border-radius:20px;">📁 Administración</span>
       </div>
 <div class="topbar" style="display: none;">
-  <h2>🛒 MÓDULO COMPRAS</h2>
+  <h2 id="titulo-modulo">🛒 MÓDULO COMPRAS</h2>
   <button class="btn-darkmode no-print" onclick="toggleDark()" id="btnDark" style="display: none;">🌙 Modo Oscuro</button>
 </div>
 
@@ -1157,31 +1157,15 @@ FILA SUPERIOR: 2 columnas centradas → Gasto por Sección | Resumen
         <div class="titulo-header" style="margin:0">📊 Gasto por Sección</div>
         <span style="font-size:10px;color:var(--text2)">Según filtro activo</span>
       </div>
-      <div class="seccion-grid" id="seccionGrid">
-    <div class="seccion-card">
-      <div class="sec-nombre">Administración</div>
-      <div class="sec-monto">$0</div>
-    </div>
-    <div class="seccion-card">
-      <div class="sec-nombre">Bodega</div>
-      <div class="sec-monto">$0</div>
-    </div>
-    <div class="seccion-card">
-      <div class="sec-nombre">Cocina</div>
-      <div class="sec-monto">$0</div>
-    </div>
-    <div class="seccion-card">
-      <div class="sec-nombre">Panadería</div>
-      <div class="sec-monto">$0</div>
-    </div>
-    <div class="seccion-card">
-      <div class="sec-nombre">Pastelería</div>
-      <div class="sec-monto">$0</div>
-    </div>
-    <div class="seccion-card">
-      <div class="sec-nombre">Sala de ventas</div>
-      <div class="sec-monto">$0</div>
-    </div></div>
+      <div class="seccion-grid" id="seccionGrid"></div>
+      <!-- TOTAL INVERTIDO -->
+      <div id="box-total-invertido" style="margin-top:10px;background:var(--blue);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.7);margin-bottom:2px;">💰 Total Invertido</div>
+          <div id="lbl-periodo-total" style="font-size:10px;color:rgba(255,255,255,0.6);">Año 2026</div>
+        </div>
+        <div id="total-invertido-monto" style="font-size:20px;font-weight:700;color:white;font-family:'DM Mono',monospace;">$0</div>
+      </div>
     </div>
 
     <!-- RESUMEN DE COMPRAS -->
@@ -1507,16 +1491,18 @@ FILA INFERIOR: 2 columnas
   window._fsModule = { collection, getDocs, addDoc, deleteDoc, doc, setDoc, onSnapshot, query, orderBy };
 
   // Cargar historial desde Firestore al iniciar
-  async function cargarDesdeFirestore() {
+  async function cargarDesdeFirestore(col) {
+    col = col || 'compras';
     try {
-      const snap = await getDocs(collection(db, "compras"));
+      const snap = await getDocs(collection(db, col));
       const datos = [];
       snap.forEach(d => datos.push({ _id: d.id, ...d.data() }));
       datos.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
       historial = datos;
-      if(typeof renderTabla === 'function') renderTabla();
-      if(typeof renderResumen === 'function') renderResumen();
-      console.log(`✅ ${datos.length} registros cargados desde Firestore`);
+      if(typeof filtrar === 'function') filtrar();
+      if(typeof calcularResumen === 'function') calcularResumen();
+      if(typeof actualizarFiltroProveedores === 'function') actualizarFiltroProveedores();
+      console.log(`✅ ${datos.length} registros cargados desde ${col}`);
     } catch(e) {
       console.warn("Error cargando Firestore, usando localStorage:", e);
     }
@@ -1526,7 +1512,7 @@ FILA INFERIOR: 2 columnas
 
   // Esperar a que el DOM esté listo y luego cargar
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(cargarDesdeFirestore, 500);
+    setTimeout(() => cargarDesdeFirestore('compras'), 500);
   });
 </script>
 
@@ -1553,18 +1539,14 @@ function cargarHistorial(){
 let historial = cargarHistorial();
 historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
 
-// guardarStorage: guarda en localStorage Y en Firestore
 async function guardarStorage(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
-  // Sincronizar con Firestore si está disponible
   if(window._db && window._fsModule){
     const { collection, addDoc, deleteDoc, doc, getDocs } = window._fsModule;
     const db = window._db;
     try {
-      // Borrar todos y reescribir (simple para app pequeña)
       const snap = await getDocs(collection(db, "compras"));
-      const borrados = snap.docs.map(d => deleteDoc(doc(db, "compras", d.id)));
-      await Promise.all(borrados);
+      await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "compras", d.id))));
       for(const item of historial){
         const { _id, ...datos } = item;
         await addDoc(collection(db, "compras"), datos);
@@ -1575,9 +1557,11 @@ async function guardarStorage(){
   }
 }
 
-/* DETECCIÓN DE ROL — gestionado por el index */
+/* DETECCIÓN DE ROL */
 let ROL         = 'seccion';
 let SECCION_ROL = '';
+
+/* DETECCIÓN DE ROL — gestionado por el index */
 
 // Aplica restricciones visuales según rol
 function aplicarRol(){
@@ -2544,6 +2528,16 @@ function calcularResumen(){
       <div class="sec-monto">${formatPeso(gastos[s.toUpperCase()])}</div>
     </div>`).join("");
 
+  // Total invertido con etiqueta de período
+  let totalInv = Object.values(gastos).reduce((a,b)=>a+b, 0);
+  let elMonto = document.getElementById('total-invertido-monto');
+  let elLbl   = document.getElementById('lbl-periodo-total');
+  if(elMonto) elMonto.textContent = formatPeso(totalInv);
+  if(elLbl){
+    let lbl = document.getElementById('labelPeriodo');
+    elLbl.textContent = lbl ? lbl.textContent : 'Período activo';
+  }
+
   filtrar();
 }
 
@@ -3243,6 +3237,15 @@ function abrirCompras(titulo){
   document.getElementById('compras-selector').style.display = 'none';
   document.getElementById('compras-wrapper').style.display = 'block';
   document.getElementById('topTitulo').textContent = titulo;
+  // Cambiar título del módulo según rol
+  let tituloMod = document.getElementById('titulo-modulo');
+  if(tituloMod){
+    if(ROL === 'programador') tituloMod.textContent = '💻 MÓDULO PROGRAMADOR';
+    else if(ROL === 'admin')  tituloMod.textContent = '🔑 MÓDULO ADMINISTRADOR';
+    else                      tituloMod.textContent = '🛒 MÓDULO COMPRAS';
+  }
+  // Cargar historial desde Firestore al abrir
+  if(window._cargarDesdeFirestore) window._cargarDesdeFirestore('compras');
   // Mostrar sección activa en el badge del botón volver
   let lbl = document.getElementById('lbl-seccion-activa');
   if(lbl){
