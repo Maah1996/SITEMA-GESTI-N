@@ -1486,11 +1486,36 @@ FILA INFERIOR: 2 columnas
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Exponer db globalmente para usarlo en el resto del código
   window._db = db;
   window._fsModule = { collection, getDocs, addDoc, deleteDoc, doc, setDoc, onSnapshot, query, orderBy };
+  window._guardando = false;
 
-  // Cargar historial desde Firestore al iniciar
+  // ===== LISTENER EN TIEMPO REAL CON onSnapshot =====
+  function activarSincronizacionTiempoReal() {
+    const q = query(collection(db, 'compras'), orderBy('fecha', 'desc'));
+    const unsub = onSnapshot(q, (snapshot) => {
+      // Ignorar si estamos en medio de un guardado
+      if(window._guardando) return;
+      try {
+        const datos = [];
+        snapshot.forEach(d => datos.push({ _id: d.id, ...d.data() }));
+        datos.sort((a,b) => new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
+        historial = datos;
+        localStorage.setItem('compras_v3', JSON.stringify(historial));
+        if(typeof filtrar === 'function') filtrar();
+        if(typeof calcularResumen === 'function') calcularResumen();
+        if(typeof actualizarFiltroProveedores === 'function') actualizarFiltroProveedores();
+        console.log(`🔄 Sincronizado: ${datos.length} registros`);
+      } catch(e) {
+        console.warn("Error en onSnapshot:", e);
+      }
+    }, (error) => {
+      console.warn("Error listener Firestore:", error);
+    });
+    window._unsubscribe = unsub;
+  }
+
+  // Función legacy para compatibilidad
   async function cargarDesdeFirestore(col) {
     col = col || 'compras';
     try {
@@ -1502,22 +1527,21 @@ FILA INFERIOR: 2 columnas
       if(typeof filtrar === 'function') filtrar();
       if(typeof calcularResumen === 'function') calcularResumen();
       if(typeof actualizarFiltroProveedores === 'function') actualizarFiltroProveedores();
-      console.log(`✅ ${datos.length} registros cargados desde ${col}`);
     } catch(e) {
-      console.warn("Error cargando Firestore, usando localStorage:", e);
+      console.warn("Error cargando Firestore:", e);
     }
   }
 
   window._cargarDesdeFirestore = cargarDesdeFirestore;
 
-  // Esperar a que el DOM esté listo y luego cargar
+  // Activar listener cuando el DOM esté listo
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => cargarDesdeFirestore('compras'), 500);
+    setTimeout(() => activarSincronizacionTiempoReal(), 500);
   });
 </script>
 
 <script>
-/* STORAGE — con Firestore + localStorage como respaldo */
+/* STORAGE — Firestore en tiempo real + localStorage como respaldo */
 const STORAGE_KEY = "compras_v3";
 
 function cargarHistorial(){
@@ -1539,21 +1563,48 @@ function cargarHistorial(){
 let historial = cargarHistorial();
 historial.sort((a,b)=> new Date(b.fecha+"T12:00:00") - new Date(a.fecha+"T12:00:00"));
 
+// guardarStorage — guarda individualmente con bandera para no interferir con onSnapshot
 async function guardarStorage(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
-  if(window._db && window._fsModule){
-    const { collection, addDoc, deleteDoc, doc, getDocs } = window._fsModule;
-    const db = window._db;
-    try {
-      const snap = await getDocs(collection(db, "compras"));
-      await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "compras", d.id))));
-      for(const item of historial){
-        const { _id, ...datos } = item;
-        await addDoc(collection(db, "compras"), datos);
+  if(!window._db || !window._fsModule) return;
+
+  // Bloquear onSnapshot mientras guardamos
+  window._guardando = true;
+
+  const { collection, addDoc, deleteDoc, doc, setDoc, getDocs } = window._fsModule;
+  const db = window._db;
+  try {
+    const snap = await getDocs(collection(db, "compras"));
+    const idsFirestore = new Set(snap.docs.map(d => d.id));
+    const idsHistorial = new Set(
+      historial.filter(i => i._id && !i._id.startsWith('local-')).map(i => i._id)
+    );
+
+    // Eliminar los que ya no están en el historial
+    const eliminaciones = [];
+    for(const fsId of idsFirestore){
+      if(!idsHistorial.has(fsId)){
+        eliminaciones.push(deleteDoc(doc(db, "compras", fsId)));
       }
-    } catch(e) {
-      console.warn("Error sincronizando con Firestore:", e);
     }
+    await Promise.all(eliminaciones);
+
+    // Guardar/actualizar cada registro con su propio ID
+    for(const item of historial){
+      const { _id, ...datos } = item;
+      if(_id && !_id.startsWith('local-')){
+        await setDoc(doc(db, "compras", _id), datos);
+      } else {
+        const ref = await addDoc(collection(db, "compras"), datos);
+        item._id = ref.id;
+      }
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(historial));
+  } catch(e) {
+    console.warn("Error sincronizando con Firestore:", e);
+  } finally {
+    // Desbloquear onSnapshot después de 2 segundos
+    setTimeout(() => { window._guardando = false; }, 2000);
   }
 }
 
