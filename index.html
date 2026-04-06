@@ -2744,7 +2744,51 @@ function cerrarVistaExcel(){
 }
 
 /* =====================================================
-BACKUP — exportar e importar datos JSON
+ACCESO INVENTARIO — modal con clave diaria
+===================================================== */
+let _invSeccion = '';
+let _invNombre  = '';
+let _invIcono   = '';
+
+function abrirAccesoInventario(seccion, nombre, icono){
+  _invSeccion = seccion;
+  _invNombre  = nombre;
+  _invIcono   = icono;
+  document.getElementById('inv-modal-icono').textContent  = icono;
+  document.getElementById('inv-modal-titulo').textContent = nombre;
+  document.getElementById('inv-clave-input').value        = '';
+  document.getElementById('inv-clave-error').style.display = 'none';
+  document.getElementById('modal-acceso-inv').style.display = 'flex';
+  setTimeout(()=>document.getElementById('inv-clave-input').focus(), 100);
+}
+
+function cerrarAccesoInventario(){
+  document.getElementById('modal-acceso-inv').style.display = 'none';
+  document.getElementById('inv-clave-input').value = '';
+  document.getElementById('inv-clave-error').style.display = 'none';
+}
+
+function verificarClaveInventario(){
+  const clave = document.getElementById('inv-clave-input').value.trim();
+  const claveCorrecta = generarClaveDia();
+  if(clave === claveCorrecta){
+    cerrarAccesoInventario();
+    // Solo bodega tiene módulo activo por ahora
+    if(_invSeccion === 'bodega'){
+      window.location.href = 'inventario.html';
+    } else {
+      showToast('⏳ Módulo ' + _invNombre + ' en desarrollo', 'info');
+    }
+  } else {
+    document.getElementById('inv-clave-error').style.display = 'block';
+    const inp = document.getElementById('inv-clave-input');
+    inp.style.borderColor = '#ef4444';
+    inp.value = '';
+    setTimeout(()=>{ inp.style.borderColor = 'var(--border)'; }, 1500);
+  }
+}
+
+
 ===================================================== */
 function exportarBackup(){
   if(historial.length === 0){ showToast("⚠️ No hay datos para exportar","error"); return; }
@@ -2817,11 +2861,65 @@ initCompras();
 
     <!-- PANEL INVENTARIO — próximamente -->
     <div class="panel" id="panel-inventario">
-      <div class="pronto-wrap">
-        <span class="pronto-icono">📦</span>
-        <div class="pronto-titulo">Módulo Inventario</div>
-        <div class="pronto-sub">Haz clic para abrir el módulo</div>
-        <button class="btn btn-primary" onclick="window.location.href='inventario.html'" style="margin-top:16px;padding:12px 24px;font-size:14px;">Abrir Inventario →</button>
+      <div style="padding:24px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:16px;">Selecciona un módulo de inventario</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;">
+
+          <!-- BODEGA -->
+          <div onclick="abrirAccesoInventario('bodega','Inventario Bodega','📦')" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 0 #d1d5db,0 6px 12px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='#2563eb';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="width:54px;height:54px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:28px;">📦</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);text-align:center;">Inventario Bodega</div>
+            <div style="font-size:11px;color:var(--text2);text-align:center;">Control de stock y entradas/salidas</div>
+            <div style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#dcfce7;color:#15803d;">✓ Disponible</div>
+          </div>
+
+          <!-- COCINA -->
+          <div onclick="abrirAccesoInventario('cocina','Inventario Cocina','🍳')" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 0 #d1d5db,0 6px 12px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='#2563eb';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="width:54px;height:54px;border-radius:14px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:28px;">🍳</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);text-align:center;">Inventario Cocina</div>
+            <div style="font-size:11px;color:var(--text2);text-align:center;">Control de insumos cocina</div>
+            <div style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f1f5f9;color:#94a3b8;">⏳ Pronto</div>
+          </div>
+
+          <!-- PANADERÍA -->
+          <div onclick="abrirAccesoInventario('panaderia','Inventario Panadería','🌾')" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 0 #d1d5db,0 6px 12px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='#2563eb';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="width:54px;height:54px;border-radius:14px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:28px;">🌾</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);text-align:center;">Inventario Panadería</div>
+            <div style="font-size:11px;color:var(--text2);text-align:center;">Control de insumos panadería</div>
+            <div style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f1f5f9;color:#94a3b8;">⏳ Pronto</div>
+          </div>
+
+          <!-- PASTELERÍA -->
+          <div onclick="abrirAccesoInventario('pasteleria','Inventario Pastelería','🎂')" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 0 #d1d5db,0 6px 12px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='#2563eb';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="width:54px;height:54px;border-radius:14px;background:#fce7f3;display:flex;align-items:center;justify-content:center;font-size:28px;">🎂</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);text-align:center;">Inventario Pastelería</div>
+            <div style="font-size:11px;color:var(--text2);text-align:center;">Control de insumos pastelería</div>
+            <div style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f1f5f9;color:#94a3b8;">⏳ Pronto</div>
+          </div>
+
+          <!-- SALA DE VENTAS -->
+          <div onclick="abrirAccesoInventario('sala','Inventario Sala de Ventas','🛍️')" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 0 #d1d5db,0 6px 12px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='#2563eb';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="width:54px;height:54px;border-radius:14px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:28px;">🛍️</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);text-align:center;">Inventario Sala de Ventas</div>
+            <div style="font-size:11px;color:var(--text2);text-align:center;">Control de productos sala</div>
+            <div style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f1f5f9;color:#94a3b8;">⏳ Pronto</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ACCESO INVENTARIO -->
+    <div id="modal-acceso-inv" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;">
+      <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <div id="inv-modal-icono" style="width:60px;height:60px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;"></div>
+        <div id="inv-modal-titulo" style="font-size:16px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px;"></div>
+        <div style="font-size:12px;color:var(--text2);text-align:center;margin-bottom:20px;">Ingresa la clave diaria para acceder</div>
+        <input id="inv-clave-input" type="password" placeholder="••••" maxlength="6" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:22px;text-align:center;font-family:monospace;letter-spacing:6px;color:var(--text);background:var(--surface2);margin-bottom:6px;" onkeydown="if(event.key==='Enter') verificarClaveInventario()">
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-bottom:14px;">La clave diaria la genera el sistema cada día</div>
+        <div id="inv-clave-error" style="font-size:12px;color:#ef4444;text-align:center;margin-bottom:12px;display:none;">❌ Clave incorrecta, intenta de nuevo</div>
+        <button onclick="verificarClaveInventario()" style="width:100%;padding:12px;background:#2563eb;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;">Ingresar al módulo</button>
+        <button onclick="cerrarAccesoInventario()" style="width:100%;padding:10px;background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;">Cancelar</button>
       </div>
     </div>
 
