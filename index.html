@@ -3330,6 +3330,10 @@ function aplicarRolVista(){
   if(timerEl)     timerEl.style.display     = (ROL === 'admin' && sesionEstaActiva()) ? 'flex' : 'none';
   if(btnBackup)   btnBackup.style.display   = ROL === 'programador' ? '' : 'none';
   if(btnImportar) btnImportar.style.display = ROL === 'programador' ? '' : 'none';
+
+  // Botón Excel — solo Admin y Programador
+  let btnExcel = document.querySelector('.btn.btn-outline[onclick*="exportarExcel"]');
+  if(btnExcel) btnExcel.style.display = (ROL === 'admin' || ROL === 'programador') ? '' : 'none';
   let panelProgLinks = document.getElementById('panel-prog-links');
   if(panelProgLinks) panelProgLinks.style.display = ROL === 'programador' ? 'block' : 'none';
   // Mostrar clave diaria para programador
